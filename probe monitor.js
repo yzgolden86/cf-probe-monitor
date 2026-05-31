@@ -278,7 +278,12 @@ export default {
       .theme2 .custom-table td { border-bottom-color: #30363d; }
       .theme2 .custom-table tr:hover { background: #21262d; }
       .theme2 .filter-tag { background: #161b22; color: #c9d1d9; border-color: #30363d; }
+      .theme2 .filter-tag:hover { color: #58a6ff; border-color: #58a6ff; }
       .theme2 .header { background: rgba(22, 27, 34, 0.8); border-color: #30363d; }
+      .theme2 .ping-box { background: #161b22; border-color: #30363d; }
+      .theme2 .ping-box::before { opacity: 0.5; }
+      .theme2 .ping-box > span { color: #c9d1d9; }
+      .theme2 .ping-box > span:hover { background: rgba(88, 166, 255, 0.1); }
 
       body.theme3 { background-color: #fef3c7; color: #000; font-weight: 500; }
       .theme3 .vps-card, .theme3 .header-card, .theme3 .chart-card { background: #fff; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0px #000; transition: transform 0.1s, box-shadow 0.1s; }
@@ -297,20 +302,25 @@ export default {
       .theme4 .g-item { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-color: rgba(255, 255, 255, 0.25); }
       .theme4 .vps-card:hover { background: rgba(255, 255, 255, 0.22); border-color: rgba(255, 255, 255, 0.5); }
       .theme4 .group-header { color: #fff; background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3); text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-      .theme4 .g-val, .theme4 .card-title { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-      .theme4 .g-label, .theme4 .g-sub, .theme4 .card-meta { color: rgba(255,255,255,0.85); }
+      .theme4 .g-val, .theme4 .card-title { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); font-weight: 700; }
+      .theme4 .g-label, .theme4 .g-sub, .theme4 .card-meta { color: rgba(255,255,255,0.95); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
       .theme4 .stat-bar, .theme4 .stat-bar-full { background: rgba(0,0,0,0.2); }
       .theme4 .custom-table, .theme4 .filter-tag { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); color: #fff; }
       .theme4 .custom-table th, .theme4 .custom-table tr:hover { background: rgba(0,0,0,0.15); color:#fff;}
-      .theme4 .os-text { color: #eee; }
+      .theme4 .os-text { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
       .theme4 .header { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3); }
+      .theme4 .ping-box { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.25); }
+      .theme4 .ping-box::before { opacity: 0.6; }
+      .theme4 .ping-box > span { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+      .theme4 .ping-box > span:hover { background: rgba(255, 255, 255, 0.15); }
+      .theme4 .filter-tag:hover { color: #fff; border-color: rgba(255, 255, 255, 0.6); }
 
       body.theme5 { background-color: #0a0e27; color: #00ff9f; font-family: 'Courier New', Courier, monospace; }
       .theme5 .vps-card, .theme5 .header-card, .theme5 .chart-card { background: #0f1419; border: 1px solid #00ff9f; border-radius: 0; box-shadow: 0 0 15px rgba(0, 255, 159, 0.3), inset 0 0 10px rgba(0, 255, 159, 0.05); color: #00ff9f; }
       .theme5 .g-item { background: #0f1419; border: 1px solid #00ff9f; border-radius: 0; box-shadow: 0 0 10px rgba(0, 255, 159, 0.2); }
       .theme5 .vps-card:hover { box-shadow: 0 0 25px rgba(0, 255, 159, 0.5), inset 0 0 15px rgba(0, 255, 159, 0.1); border-color: #00ff9f; }
       .theme5 .group-header { color: #ff006e; background: #0f1419; border: 1px solid #ff006e; border-radius: 0; text-shadow: 0 0 8px #ff006e; box-shadow: 0 0 10px rgba(255, 0, 110, 0.3); }
-      .theme5 .g-val, .theme5 .card-title { color: #00ff9f; text-shadow: 0 0 8px #00ff9f; }
+      .theme5 .g-val, .theme5 .card-title { color: #00ff9f; text-shadow: 0 0 8px #00ff9f; font-weight: 700; }
       .theme5 .g-label, .theme5 .g-sub, .theme5 .card-meta { color: #8892b0; }
       .theme5 .stat-bar, .theme5 .stat-bar-full { background: #1a1f2e; border: 1px solid #00ff9f; border-radius: 0; }
       .theme5 .stat-bar > div, .theme5 .stat-bar-full > div { background: linear-gradient(90deg, #00ff9f, #00d4ff) !important; box-shadow: 0 0 10px #00ff9f; border-radius: 0; }
@@ -321,6 +331,11 @@ export default {
       .theme5 .custom-table td { border-color: #1a1f2e; }
       .theme5 .custom-table tr:hover { background: #1a1f2e; }
       .theme5 .header { background: #0f1419; border: 1px solid #00ff9f; box-shadow: 0 0 15px rgba(0, 255, 159, 0.3); }
+      .theme5 .ping-box { background: #0f1419; border-color: #00ff9f; }
+      .theme5 .ping-box::before { background: linear-gradient(90deg, #00ff9f, #00d4ff, #ff006e); opacity: 0.5; }
+      .theme5 .ping-box > span { color: #00ff9f; }
+      .theme5 .ping-box > span:hover { background: rgba(0, 255, 159, 0.1); }
+      .theme5 .filter-tag:hover { color: #00ff9f; border-color: #00d4ff; box-shadow: 0 0 20px rgba(0, 255, 159, 0.4); }
 
       ${sys.theme === 'theme6' ? (sys.custom_css || '') : ''}
 
@@ -506,12 +521,13 @@ export default {
         background: linear-gradient(135deg, var(--color-primary), var(--color-purple));
         opacity: 0;
         transition: opacity 0.3s;
+        z-index: 0;
       }
       .filter-tag img {
         border-radius: 3px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         position: relative;
-        z-index: 1;
+        z-index: 2;
       }
       .filter-tag:hover {
         border-color: var(--color-primary);
@@ -528,7 +544,7 @@ export default {
       }
       .filter-tag.active::before { opacity: 1; }
       .filter-tag.active:hover { color: white; transform: translateY(-3px); }
-      .filter-tag > * { position: relative; z-index: 1; }
+      .filter-tag > * { position: relative; z-index: 2; }
       #map-container { width: 100%; height: 500px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--gray-200); background-color: #b1c2d4; background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 20px 20px; z-index: 1; }
       body.theme2 #map-container, body.theme5 #map-container { background-color: #0d1117; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); border-color: #30363d; }
       .custom-map-badge div { background-color: var(--color-success); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 8px rgba(5,150,105,0.4); }
@@ -656,8 +672,8 @@ export default {
         margin-top: 14px;
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
-        padding: 12px 14px;
+        gap: 8px;
+        padding: 14px 16px;
         border-radius: var(--radius-md);
         background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(139, 92, 246, 0.03));
         border: 1px solid var(--gray-200);
@@ -679,21 +695,29 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 6px;
-        padding: 4px 6px;
-        color: var(--gray-600);
+        gap: 8px;
+        padding: 6px 8px;
+        color: var(--gray-700);
         font-weight: 600;
-        font-size: 11px;
+        font-size: 12px;
         border-radius: var(--radius-xs);
         transition: all 0.2s var(--ease-out);
+        background: rgba(255,255,255,0.5);
       }
       .ping-box > span:hover {
-        background: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.8);
         transform: translateX(2px);
+        box-shadow: var(--shadow-xs);
       }
-      .ping-box > span > span {
+      .ping-box > span > span:first-child {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+      }
+      .ping-box > span > span:last-child {
         font-family: var(--font-mono);
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
       }
       .chart-full { grid-column: 1 / -1; }
@@ -1562,12 +1586,12 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
               <div class="form-group">
                 <label>🎨 前端主题风格 (6选1)</label>
                 <select id="cfg_theme" onchange="toggleCustomCss()">
-                  <option value="theme1" ${sys.theme === 'theme1' ? 'selected' : ''}>1. 默认清爽白 (Classic White)</option>
-                  <option value="theme2" ${sys.theme === 'theme2' ? 'selected' : ''}>2. 暗黑极客 (Dark Mode)</option>
-                  <option value="theme3" ${sys.theme === 'theme3' ? 'selected' : ''}>3. 新粗野主义 (Brutalism)</option>
-                  <option value="theme4" ${sys.theme === 'theme4' ? 'selected' : ''}>4. 动态渐变毛玻璃 (Glassmorphism)</option>
-                  <option value="theme5" ${sys.theme === 'theme5' ? 'selected' : ''}>5. 赛博朋克 (Cyberpunk)</option>
-                  <option value="theme6" ${sys.theme === 'theme6' ? 'selected' : ''}>6. 完全自定义 CSS (Custom Theme)</option>
+                  <option value="theme1" ${sys.theme === 'theme1' ? 'selected' : ''}>清爽白 - 默认主题</option>
+                  <option value="theme2" ${sys.theme === 'theme2' ? 'selected' : ''}>暗黑模式 - 护眼深色</option>
+                  <option value="theme3" ${sys.theme === 'theme3' ? 'selected' : ''}>粗野主义 - 复古扁平</option>
+                  <option value="theme4" ${sys.theme === 'theme4' ? 'selected' : ''}>毛玻璃 - 紫色渐变</option>
+                  <option value="theme5" ${sys.theme === 'theme5' ? 'selected' : ''}>赛博朋克 - 霓虹绿</option>
+                  <option value="theme6" ${sys.theme === 'theme6' ? 'selected' : ''}>自定义 CSS - 完全自由</option>
                 </select>
               </div>
 
