@@ -285,8 +285,8 @@ export default {
       .theme2 .ping-box::before { opacity: 0.5; }
       .theme2 .ping-box > span { color: #e6edf3; background: rgba(33, 38, 45, 0.6); font-weight: 700; }
       .theme2 .ping-box > span:hover { background: rgba(88, 166, 255, 0.15); }
-      .theme2 .ping-box > span > span { color: #fff; font-weight: 700; }
-      .theme2 .os-text { color: #8b949e; }
+      .theme2 .ping-box > span > span { color: #fff; font-weight: 800; }
+      .theme2 .os-text { color: #c9d1d9; font-weight: 600; }
 
       body.theme3 { background-color: #fef3c7; color: #000; font-weight: 500; }
       .theme3 .vps-card, .theme3 .header-card, .theme3 .chart-card { background: #fff; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0px #000; transition: transform 0.1s, box-shadow 0.1s; }
@@ -344,23 +344,25 @@ export default {
 
       ${sys.custom_bg ? `
         body { background: url('${sys.custom_bg}') no-repeat center center fixed !important; background-size: cover !important; position: relative; }
-        body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.65) 100%); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); pointer-events: none; z-index: 0; }
+        body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.80) 100%); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); pointer-events: none; z-index: 0; }
         .container { position: relative; z-index: 1; }
-        .vps-card, .header-card, .chart-card, .custom-table, .view-controls { background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15) !important; color: var(--gray-900) !important; }
-        .g-item, .filter-tag { background: rgba(255, 255, 255, 0.88) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; }
-        .header { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(24px) saturate(180%) !important; -webkit-backdrop-filter: blur(24px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; }
+        .vps-card, .header-card, .chart-card, .custom-table, .view-controls { background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.98) !important; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15) !important; color: var(--gray-900) !important; }
+        .g-item, .filter-tag { background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.98) !important; }
+        .header { background: rgba(255, 255, 255, 0.90) !important; backdrop-filter: blur(24px) saturate(180%) !important; -webkit-backdrop-filter: blur(24px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.98) !important; }
         .vps-card:hover { background: rgba(255, 255, 255, 0.98) !important; transform: translateY(-3px); }
-        .group-header { background: rgba(255, 255, 255, 0.92) !important; color: var(--gray-900) !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important; font-weight: 700 !important; }
-        .g-val, .card-title-text { color: var(--gray-900) !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-        .g-label, .g-sub, .card-meta { color: var(--gray-800) !important; font-weight: 600 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-        .header-title-wrapper h1 { -webkit-text-fill-color: var(--gray-900) !important; background: none !important; font-weight: 700 !important; text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
-        .ping-box { background: rgba(255, 255, 255, 0.88) !important; }
-        .ping-box > span { background: rgba(255, 255, 255, 0.75) !important; color: var(--gray-900) !important; font-weight: 700 !important; }
-        .ping-box > span:hover { background: rgba(255, 255, 255, 0.95) !important; }
-        .ping-box > span > span { color: var(--gray-900) !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-        .custom-table th { color: var(--gray-900) !important; font-weight: 700 !important; }
-        .custom-table td { color: var(--gray-900) !important; font-weight: 600 !important; }
-        .os-text { color: var(--gray-700) !important; font-weight: 600 !important; }
+        .group-header { background: rgba(255, 255, 255, 0.95) !important; color: var(--gray-900) !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important; font-weight: 800 !important; }
+        .g-val, .card-title-text { color: var(--gray-900) !important; font-weight: 800 !important; text-shadow: 0 1px 3px rgba(255,255,255,0.9); }
+        .g-label, .g-sub, .card-meta { color: var(--gray-900) !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(255,255,255,0.9); }
+        .header-title-wrapper h1 { -webkit-text-fill-color: var(--gray-900) !important; background: none !important; font-weight: 800 !important; text-shadow: 0 2px 4px rgba(255,255,255,0.9); }
+        .ping-box { background: rgba(255, 255, 255, 0.92) !important; }
+        .ping-box > span { background: rgba(255, 255, 255, 0.85) !important; color: var(--gray-900) !important; font-weight: 800 !important; }
+        .ping-box > span:hover { background: rgba(255, 255, 255, 0.98) !important; }
+        .ping-box > span > span { color: var(--gray-900) !important; font-weight: 800 !important; text-shadow: 0 1px 3px rgba(255,255,255,0.9); }
+        .custom-table th { color: var(--gray-900) !important; font-weight: 800 !important; }
+        .custom-table td { color: var(--gray-900) !important; font-weight: 700 !important; }
+        .os-text { color: var(--gray-800) !important; font-weight: 700 !important; }
+        .meta-label { color: var(--gray-700) !important; font-weight: 800 !important; }
+        .meta-value { color: var(--gray-900) !important; font-weight: 700 !important; }
       ` : ''}
 
       .view-controls {
@@ -372,7 +374,6 @@ export default {
         border: 1px solid var(--gray-200);
         box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.8);
         position: relative;
-        overflow: hidden;
       }
       .view-controls::before {
         content: '';
@@ -381,6 +382,8 @@ export default {
         background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
         opacity: 0;
         transition: opacity 0.3s;
+        pointer-events: none;
+        z-index: 0;
       }
       .view-controls:hover::before {
         opacity: 1;
@@ -399,7 +402,6 @@ export default {
         color: var(--gray-600);
         transition: all 0.3s var(--ease-out);
         position: relative;
-        overflow: hidden;
         z-index: 1;
       }
       .toggle-btn::before {
@@ -410,6 +412,8 @@ export default {
         opacity: 0;
         transition: opacity 0.3s;
         z-index: -1;
+        border-radius: var(--radius-full);
+        pointer-events: none;
       }
       .toggle-btn:hover {
         color: var(--gray-900);
@@ -429,6 +433,8 @@ export default {
       }
       .toggle-btn svg {
         transition: transform 0.3s var(--ease-spring);
+        position: relative;
+        z-index: 1;
       }
       .toggle-btn:hover svg {
         transform: scale(1.1);
@@ -522,7 +528,7 @@ export default {
         transition: all 0.3s var(--ease-out);
         user-select: none;
         position: relative;
-        overflow: hidden;
+        z-index: 1;
       }
       .filter-tag::before {
         content: '';
@@ -531,7 +537,7 @@ export default {
         background: linear-gradient(135deg, var(--color-primary), var(--color-purple));
         opacity: 0;
         transition: opacity 0.3s;
-        z-index: 0;
+        z-index: -1;
         border-radius: var(--radius-full);
         pointer-events: none;
       }
@@ -709,8 +715,8 @@ export default {
         align-items: center;
         gap: 8px;
         padding: 6px 8px;
-        color: var(--gray-800);
-        font-weight: 700;
+        color: var(--gray-900);
+        font-weight: 800;
         font-size: 12px;
         border-radius: var(--radius-xs);
         transition: all 0.2s var(--ease-out);
@@ -725,13 +731,13 @@ export default {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-weight: 700;
+        font-weight: 800;
         color: var(--gray-900);
       }
       .ping-box > span > span:last-child {
         font-family: var(--font-mono);
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 800;
         color: var(--gray-900);
       }
       .chart-full { grid-column: 1 / -1; }
@@ -3556,11 +3562,6 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             "DK":"DNK","IE":"IRL","AT":"AUT","TR":"TUR","AE":"ARE","MY":"MYS","TH":"THA","VN":"VNM",
             "PH":"PHL","ID":"IDN"
           };
-
-          const iso3To2 = {};
-          for (const [iso2, iso3] of Object.entries(iso2To3)) {
-            iso3To2[iso3] = iso2;
-          }
 
           const iso3To2 = {};
           for (const [iso2, iso3] of Object.entries(iso2To3)) {
