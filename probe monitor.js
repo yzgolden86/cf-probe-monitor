@@ -267,7 +267,7 @@ export default {
       .theme2 .group-header { color: #58a6ff; background: #161b22; border-color: #30363d; }
       .theme2 .g-val { color: #fff; font-weight: 700; }
       .theme2 .g-label, .theme2 .g-sub { color: #c9d1d9; }
-      .theme2 .card-meta { color: #8b949e; }
+      .theme2 .card-meta { color: #b8c2cc; }
       .theme2 .stat-bar, .theme2 .stat-bar-full { background: #21262d; }
       .theme2 .card-title { color: #fff; font-weight: 700; }
       .theme2 .view-controls { background: #0d1117; border: 1px solid #30363d; }
@@ -324,7 +324,7 @@ export default {
       .theme5 .vps-card:hover { box-shadow: 0 0 25px rgba(0, 255, 159, 0.5), inset 0 0 15px rgba(0, 255, 159, 0.1); border-color: #00ff9f; }
       .theme5 .group-header { color: #ff006e; background: #0f1419; border: 1px solid #ff006e; border-radius: 0; text-shadow: 0 0 8px #ff006e; box-shadow: 0 0 10px rgba(255, 0, 110, 0.3); }
       .theme5 .g-val, .theme5 .card-title { color: #00ff9f; text-shadow: 0 0 8px #00ff9f; font-weight: 700; }
-      .theme5 .g-label, .theme5 .g-sub, .theme5 .card-meta { color: #8892b0; }
+      .theme5 .g-label, .theme5 .g-sub, .theme5 .card-meta { color: #a0aec0; }
       .theme5 .stat-bar, .theme5 .stat-bar-full { background: #1a1f2e; border: 1px solid #00ff9f; border-radius: 0; }
       .theme5 .stat-bar > div, .theme5 .stat-bar-full > div { background: linear-gradient(90deg, #00ff9f, #00d4ff) !important; box-shadow: 0 0 10px #00ff9f; border-radius: 0; }
       .theme5 .badge-bw { background: #ff006e; box-shadow: 0 0 8px #ff006e; }
@@ -531,8 +531,9 @@ export default {
         background: linear-gradient(135deg, var(--color-primary), var(--color-purple));
         opacity: 0;
         transition: opacity 0.3s;
-        z-index: -1;
+        z-index: 0;
         border-radius: var(--radius-full);
+        pointer-events: none;
       }
       .filter-tag img {
         border-radius: 3px;
@@ -553,7 +554,7 @@ export default {
         box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
         transform: translateY(-2px);
       }
-      .filter-tag.active::before { opacity: 1; z-index: -1; }
+      .filter-tag.active::before { opacity: 1; }
       .filter-tag.active:hover { color: white; transform: translateY(-3px); }
       .filter-tag > * { position: relative; z-index: 1; }
       #map-container { width: 100%; height: 500px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--gray-200); background-color: #b1c2d4; background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 20px 20px; z-index: 1; }
@@ -3094,7 +3095,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           }
           .g-label {
             font-size: 11px;
-            color: var(--gray-600);
+            color: var(--gray-700);
             line-height: 1.4;
             font-weight: 700;
             text-transform: uppercase;
@@ -3116,11 +3117,11 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           }
           .g-sub {
             font-size: 13px;
-            color: var(--gray-600);
+            color: var(--gray-700);
             white-space: normal;
             line-height: 1.5;
             margin-top: 4px;
-            font-weight: 500;
+            font-weight: 600;
           }
           @media (max-width: 640px) { .global-stats { grid-template-columns: 1fr; } }
 
@@ -3250,7 +3251,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           }
           .card-meta {
             font-size: 12px;
-            color: var(--gray-600);
+            color: var(--gray-700);
             line-height: 1.5;
             font-weight: 500;
             display: flex;
