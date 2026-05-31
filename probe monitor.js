@@ -522,7 +522,7 @@ export default {
         transition: all 0.3s var(--ease-out);
         user-select: none;
         position: relative;
-        overflow: visible;
+        overflow: hidden;
       }
       .filter-tag::before {
         content: '';
@@ -531,14 +531,14 @@ export default {
         background: linear-gradient(135deg, var(--color-primary), var(--color-purple));
         opacity: 0;
         transition: opacity 0.3s;
-        z-index: 0;
+        z-index: -1;
         border-radius: var(--radius-full);
       }
       .filter-tag img {
         border-radius: 3px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         position: relative;
-        z-index: 3;
+        z-index: 1;
       }
       .filter-tag:hover {
         border-color: var(--color-primary);
@@ -553,9 +553,9 @@ export default {
         box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
         transform: translateY(-2px);
       }
-      .filter-tag.active::before { opacity: 1; }
+      .filter-tag.active::before { opacity: 1; z-index: -1; }
       .filter-tag.active:hover { color: white; transform: translateY(-3px); }
-      .filter-tag > * { position: relative; z-index: 3; }
+      .filter-tag > * { position: relative; z-index: 1; }
       #map-container { width: 100%; height: 500px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--gray-200); background-color: #b1c2d4; background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 20px 20px; z-index: 1; }
       body.theme2 #map-container, body.theme5 #map-container { background-color: #0d1117; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); border-color: #30363d; }
       .custom-map-badge div { background-color: var(--color-success); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 8px rgba(5,150,105,0.4); }
