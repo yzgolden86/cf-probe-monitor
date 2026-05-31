@@ -265,25 +265,28 @@ export default {
       .theme2 .g-item { background: rgba(22, 27, 34, 0.6); border-color: #30363d; }
       .theme2 .vps-card:hover { border-color: #8b949e; }
       .theme2 .group-header { color: #58a6ff; background: #161b22; border-color: #30363d; }
-      .theme2 .g-val { color: #fff; }
-      .theme2 .g-label, .theme2 .g-sub, .theme2 .card-meta { color: #8b949e; }
+      .theme2 .g-val { color: #fff; font-weight: 700; }
+      .theme2 .g-label, .theme2 .g-sub { color: #c9d1d9; }
+      .theme2 .card-meta { color: #8b949e; }
       .theme2 .stat-bar, .theme2 .stat-bar-full { background: #21262d; }
-      .theme2 .card-title { color: #fff; }
+      .theme2 .card-title { color: #fff; font-weight: 700; }
       .theme2 .view-controls { background: #0d1117; border: 1px solid #30363d; }
       .theme2 .toggle-btn { color: #8b949e; }
       .theme2 .toggle-btn:hover { color: #c9d1d9; }
       .theme2 .toggle-btn.active { background: #21262d; color: #58a6ff; border: 1px solid #30363d; }
       .theme2 .custom-table { background: #161b22; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
-      .theme2 .custom-table th { background: #0d1117; color: #8b949e; border-bottom-color: #30363d; }
-      .theme2 .custom-table td { border-bottom-color: #30363d; }
+      .theme2 .custom-table th { background: #0d1117; color: #c9d1d9; border-bottom-color: #30363d; font-weight: 700; }
+      .theme2 .custom-table td { border-bottom-color: #30363d; color: #e6edf3; }
       .theme2 .custom-table tr:hover { background: #21262d; }
-      .theme2 .filter-tag { background: #161b22; color: #c9d1d9; border-color: #30363d; }
+      .theme2 .filter-tag { background: #161b22; color: #e6edf3; border-color: #30363d; font-weight: 700; }
       .theme2 .filter-tag:hover { color: #58a6ff; border-color: #58a6ff; }
       .theme2 .header { background: rgba(22, 27, 34, 0.8); border-color: #30363d; }
       .theme2 .ping-box { background: #161b22; border-color: #30363d; }
       .theme2 .ping-box::before { opacity: 0.5; }
-      .theme2 .ping-box > span { color: #c9d1d9; }
-      .theme2 .ping-box > span:hover { background: rgba(88, 166, 255, 0.1); }
+      .theme2 .ping-box > span { color: #e6edf3; background: rgba(33, 38, 45, 0.6); font-weight: 700; }
+      .theme2 .ping-box > span:hover { background: rgba(88, 166, 255, 0.15); }
+      .theme2 .ping-box > span > span { color: #fff; font-weight: 700; }
+      .theme2 .os-text { color: #8b949e; }
 
       body.theme3 { background-color: #fef3c7; color: #000; font-weight: 500; }
       .theme3 .vps-card, .theme3 .header-card, .theme3 .chart-card { background: #fff; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0px #000; transition: transform 0.1s, box-shadow 0.1s; }
@@ -341,16 +344,23 @@ export default {
 
       ${sys.custom_bg ? `
         body { background: url('${sys.custom_bg}') no-repeat center center fixed !important; background-size: cover !important; position: relative; }
-        body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.5) 100%); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); pointer-events: none; z-index: 0; }
+        body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.65) 100%); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); pointer-events: none; z-index: 0; }
         .container { position: relative; z-index: 1; }
-        .vps-card, .header-card, .chart-card, .custom-table, .view-controls { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(16px) saturate(180%) !important; -webkit-backdrop-filter: blur(16px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.9) !important; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12) !important; color: var(--gray-800) !important; }
-        .g-item, .filter-tag { background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(16px) saturate(180%) !important; -webkit-backdrop-filter: blur(16px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.9) !important; }
-        .header { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.9) !important; }
-        .vps-card:hover { background: rgba(255, 255, 255, 0.95) !important; transform: translateY(-3px); }
-        .group-header { background: rgba(255, 255, 255, 0.85) !important; color: var(--gray-800) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; }
-        .g-val, .card-title-text { color: var(--gray-900) !important; }
-        .g-label, .g-sub, .card-meta { color: var(--gray-700) !important; }
-        .header-title-wrapper h1 { -webkit-text-fill-color: var(--gray-900) !important; background: none !important; }
+        .vps-card, .header-card, .chart-card, .custom-table, .view-controls { background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15) !important; color: var(--gray-900) !important; }
+        .g-item, .filter-tag { background: rgba(255, 255, 255, 0.88) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; }
+        .header { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(24px) saturate(180%) !important; -webkit-backdrop-filter: blur(24px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; }
+        .vps-card:hover { background: rgba(255, 255, 255, 0.98) !important; transform: translateY(-3px); }
+        .group-header { background: rgba(255, 255, 255, 0.92) !important; color: var(--gray-900) !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important; font-weight: 700 !important; }
+        .g-val, .card-title-text { color: var(--gray-900) !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+        .g-label, .g-sub, .card-meta { color: var(--gray-800) !important; font-weight: 600 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+        .header-title-wrapper h1 { -webkit-text-fill-color: var(--gray-900) !important; background: none !important; font-weight: 700 !important; text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
+        .ping-box { background: rgba(255, 255, 255, 0.88) !important; }
+        .ping-box > span { background: rgba(255, 255, 255, 0.75) !important; color: var(--gray-900) !important; font-weight: 700 !important; }
+        .ping-box > span:hover { background: rgba(255, 255, 255, 0.95) !important; }
+        .ping-box > span > span { color: var(--gray-900) !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+        .custom-table th { color: var(--gray-900) !important; font-weight: 700 !important; }
+        .custom-table td { color: var(--gray-900) !important; font-weight: 600 !important; }
+        .os-text { color: var(--gray-700) !important; font-weight: 600 !important; }
       ` : ''}
 
       .view-controls {
@@ -439,7 +449,7 @@ export default {
       }
       .custom-table th {
         background: linear-gradient(180deg, var(--gray-50) 0%, white 100%);
-        padding: 18px 20px;
+        padding: 16px 12px;
         color: var(--gray-600);
         font-weight: 700;
         font-size: 11px;
@@ -453,7 +463,7 @@ export default {
         box-shadow: 0 1px 0 rgba(255,255,255,0.8);
       }
       .custom-table td {
-        padding: 16px 20px;
+        padding: 14px 12px;
         border-bottom: 1px solid var(--gray-100);
         vertical-align: middle;
         transition: all 0.2s var(--ease-out);
@@ -512,7 +522,7 @@ export default {
         transition: all 0.3s var(--ease-out);
         user-select: none;
         position: relative;
-        overflow: hidden;
+        overflow: visible;
       }
       .filter-tag::before {
         content: '';
@@ -522,12 +532,13 @@ export default {
         opacity: 0;
         transition: opacity 0.3s;
         z-index: 0;
+        border-radius: var(--radius-full);
       }
       .filter-tag img {
         border-radius: 3px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         position: relative;
-        z-index: 2;
+        z-index: 3;
       }
       .filter-tag:hover {
         border-color: var(--color-primary);
@@ -544,7 +555,7 @@ export default {
       }
       .filter-tag.active::before { opacity: 1; }
       .filter-tag.active:hover { color: white; transform: translateY(-3px); }
-      .filter-tag > * { position: relative; z-index: 2; }
+      .filter-tag > * { position: relative; z-index: 3; }
       #map-container { width: 100%; height: 500px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--gray-200); background-color: #b1c2d4; background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 20px 20px; z-index: 1; }
       body.theme2 #map-container, body.theme5 #map-container { background-color: #0d1117; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); border-color: #30363d; }
       .custom-map-badge div { background-color: var(--color-success); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 8px rgba(5,150,105,0.4); }
@@ -697,15 +708,15 @@ export default {
         align-items: center;
         gap: 8px;
         padding: 6px 8px;
-        color: var(--gray-700);
-        font-weight: 600;
+        color: var(--gray-800);
+        font-weight: 700;
         font-size: 12px;
         border-radius: var(--radius-xs);
         transition: all 0.2s var(--ease-out);
-        background: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.6);
       }
       .ping-box > span:hover {
-        background: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.9);
         transform: translateX(2px);
         box-shadow: var(--shadow-xs);
       }
@@ -713,12 +724,14 @@ export default {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-weight: 600;
+        font-weight: 700;
+        color: var(--gray-900);
       }
       .ping-box > span > span:last-child {
         font-family: var(--font-mono);
         font-size: 12px;
         font-weight: 700;
+        color: var(--gray-900);
       }
       .chart-full { grid-column: 1 / -1; }
       .chart-full canvas { max-height: 250px !important; }
@@ -2915,7 +2928,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                 <td style="color:var(--gray-600); font-size:12px; white-space: nowrap; font-family: var(--font-mono);"><span style="color:var(--color-success);">↓</span> ${rx_val_str} <span style="color:var(--gray-300);">·</span> <span style="color:var(--color-primary);">↑</span> ${tx_val_str}</td>
                 <td style="white-space: nowrap; font-weight:600; color:var(--color-success);">${netInSpeed}/s</td>
                 <td style="white-space: nowrap; font-weight:600; color:var(--color-primary);">${netOutSpeed}/s</td>
-                <td style="color:var(--gray-500); font-size:12px; white-space: nowrap; font-weight:500;">${Math.round((now - server.last_updated)/1000)}s前</td>
+                <td style="color:var(--gray-600); font-size:12px; white-space: nowrap; font-weight:600;">${Math.round((now - server.last_updated)/1000)}s 前</td>
               </tr>
             `;
           }
@@ -3409,7 +3422,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             <div class="table-responsive">
               <table class="custom-table">
                 <thead>
-                  <tr><th style="width:60px;text-align:center;">状态</th><th>节点</th><th style="width:50px;">地区</th><th>系统</th><th>CPU</th><th>内存</th><th>磁盘</th><th>流量</th><th>下行</th><th>上行</th><th>更新</th></tr>
+                  <tr><th style="width:50px;text-align:center;">状态</th><th style="width:180px;">节点</th><th style="width:50px;">地区</th><th style="width:200px;">系统</th><th style="width:100px;">CPU</th><th style="width:100px;">内存</th><th style="width:100px;">磁盘</th><th style="width:140px;">流量</th><th style="width:90px;">下行</th><th style="width:90px;">上行</th><th style="width:120px;">更新</th></tr>
                 </thead>
                 <tbody id="ajax-table">
                   ${tableBodyHtml || '<tr><td colspan="11" style="text-align:center;">暂无数据</td></tr>'}
@@ -3543,6 +3556,16 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             "PH":"PHL","ID":"IDN"
           };
 
+          const iso3To2 = {};
+          for (const [iso2, iso3] of Object.entries(iso2To3)) {
+            iso3To2[iso3] = iso2;
+          }
+
+          const iso3To2 = {};
+          for (const [iso2, iso3] of Object.entries(iso2To3)) {
+            iso3To2[iso3] = iso2;
+          }
+
           async function initMap() {
             window.myMap = L.map('map-container', {
                 zoomControl: true,
@@ -3588,6 +3611,30 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                         color: isDark ? '#1a202c' : '#ffffff',
                         fillOpacity: 1
                     };
+                },
+                onEachFeature: function(feature, layer) {
+                    const iso2Code = iso3To2[feature.id];
+                    const isActive = activeIso3[feature.id];
+                    if (isActive && iso2Code) {
+                        layer.on('click', function() {
+                            switchView('cards');
+                            setFilter(iso2Code.toLowerCase());
+                        });
+                        layer.on('mouseover', function(e) {
+                            layer.setStyle({
+                                weight: 2,
+                                color: '#3b82f6',
+                                fillOpacity: 0.8
+                            });
+                        });
+                        layer.on('mouseout', function(e) {
+                            geoJsonLayer.resetStyle(e.target);
+                        });
+                        layer.bindTooltip(feature.properties.name || feature.id, {
+                            permanent: false,
+                            direction: 'top'
+                        });
+                    }
                 }
             }).addTo(window.myMap);
 

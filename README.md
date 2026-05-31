@@ -528,13 +528,6 @@ A: 可以。每个 Worker 独立运行，互不影响。
 
 ---
 
-## 📮 联系方式
-
-- GitHub Issues: [提交问题](https://github.com/yzgolden86/cf-probe-monitor/issues)
-- Email: yzgolden86@gmail.com
-
----
-
 <div align="center">
 
 **如果这个项目对你有帮助，请给个 ⭐ Star 支持一下！**
