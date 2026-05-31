@@ -62,64 +62,154 @@
 
 ## 🚀 快速开始
 
+### 前置要求
+
+- Cloudflare 账号（免费套餐即可）
+- Node.js 16+ 和 npm（使用 Wrangler CLI 时需要）
+- Git（可选）
+
+---
+
 ### 1. 部署到 Cloudflare Workers
 
 #### 方式一：Wrangler CLI（推荐）
 
 ```bash
-# 克隆仓库
+# 1. 克隆仓库
 git clone https://github.com/yzgolden86/cf-probe-monitor.git
 cd cf-probe-monitor
 
-# 安装 Wrangler
+# 2. 安装 Wrangler
 npm install -g wrangler
 
-# 登录 Cloudflare
+# 3. 登录 Cloudflare
 wrangler login
 
-# 创建 D1 数据库
-wrangler d1 create probe-monitor-db
+# 4. 创建 D1 数据库
+wrangler d1 create probe-db
 
-# 复制输出的 database_id，编辑 wrangler.toml
+# 输出示例：
+# ✅ Successfully created DB 'probe-db'
 # [[d1_databases]]
 # binding = "DB"
-# database_name = "probe-monitor-db"
-# database_id = "你的database_id"
+# database_name = "probe-db"
+# database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-# 部署
+# 5. 配置 wrangler.toml
+# 复制上面输出的 database_id，编辑 wrangler.toml：
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "probe-db"
+# database_id = "你的database_id"  # 替换这里
+
+# 6. 设置环境变量（二选一）
+# 方法 A：编辑 wrangler.toml
+# [vars]
+# API_SECRET = "your-secret-password"
+
+# 方法 B：使用命令行（更安全）
+wrangler secret put API_SECRET
+# 输入你的管理密码
+
+# 7. 部署
 wrangler deploy
+
+# 部署成功后会显示 Worker 的 URL：
+# ✨ Published cf-probe-monitor
+#   https://cf-probe-monitor.your-subdomain.workers.dev
 ```
 
 #### 方式二：Web 界面部署
 
+**步骤 1：创建 D1 数据库**
+
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. 进入 **Workers & Pages** → **Create Application** → **Create Worker**
-3. 复制 `probe monitor.js` 的内容粘贴到编辑器
-4. 点击 **Save and Deploy**
-5. 进入 **Settings** → **Variables** → 添加环境变量：
-   - `API_SECRET`: 设置管理密码（必填）
-6. 创建 D1 数据库：
-   - 进入 **Storage** → **D1** → **Create Database**
-   - 数据库名称：`probe-monitor-db`
-   - 绑定到 Worker：变量名 `DB`
+2. 左侧菜单选择 **Workers & Pages**
+3. 点击 **D1** 标签页
+4. 点击 **Create Database**
+5. 数据库名称输入：`probe-db`
+6. 点击 **Create**
+
+**步骤 2：创建 Worker**
+
+1. 回到 **Workers & Pages** 主页
+2. 点击 **Create Application** → **Create Worker**
+3. Worker 名称输入：`cf-probe-monitor`
+4. 点击 **Deploy**
+
+**步骤 3：编辑 Worker 代码**
+
+1. 点击 **Edit Code**
+2. 删除默认代码
+3. 打开本地的 `probe monitor.js` 文件
+4. 复制全部内容粘贴到编辑器
+5. 点击 **Save and Deploy**
+
+**步骤 4：绑定 D1 数据库**
+
+1. 点击 **Settings** → **Variables**
+2. 滚动到 **D1 Database Bindings** 部分
+3. 点击 **Add Binding**
+4. Variable name: `DB`
+5. D1 database: 选择 `probe-db`
+6. 点击 **Save**
+
+**步骤 5：设置环境变量**
+
+1. 在 **Variables** 页面
+2. 滚动到 **Environment Variables** 部分
+3. 点击 **Add Variable**
+4. Variable name: `API_SECRET`
+5. Value: 输入你的管理密码
+6. 点击 **Encrypt**（推荐）
+7. 点击 **Save**
+
+**步骤 6：重新部署**
+
+点击右上角的 **Quick Edit** → **Save and Deploy**
+
+#### 绑定自定义域名（可选）
+
+在 Cloudflare Dashboard 中：
+1. 进入 Workers & Pages → 你的 Worker
+2. 点击 **Settings** → **Triggers** → **Add Custom Domain**
+3. 输入你的域名（如 `monitor.example.com`）
+4. 点击 **Add Custom Domain**
+
+---
 
 ### 2. 安装探针到服务器
 
 访问 `https://你的worker域名.workers.dev/admin`，使用用户名 `admin` 和你设置的 `API_SECRET` 登录。
 
-#### Linux (Debian/Ubuntu/CentOS)
+#### 添加服务器
+
+1. 在 **节点列表** 部分
+2. 输入服务器名称（如：`香港 CN2`）
+3. 选择系统环境：
+   - **Linux (Systemd)**: Debian/Ubuntu/CentOS/RHEL 等
+   - **Alpine (OpenRC)**: Alpine Linux
+4. 点击 **+ 添加新服务器**
+
+#### 安装探针
+
+**Linux (Debian/Ubuntu/CentOS)**
 
 ```bash
 curl -sL https://你的worker域名.workers.dev/install.sh?os=debian | bash -s 服务器ID 你的API_SECRET
 ```
 
-#### Alpine Linux
+**Alpine Linux**
 
 ```bash
 curl -sL https://你的worker域名.workers.dev/install.sh?os=alpine | sh -s 服务器ID 你的API_SECRET
 ```
 
 > **提示**：服务器 ID 和安装命令可在后台管理页面直接复制
+
+#### 验证安装
+
+等待 5-10 秒，刷新管理后台页面，服务器状态应该显示为 **在线**。
 
 ---
 
@@ -332,6 +422,71 @@ body.theme6 {
 - 已优化为批量写入，正常情况下 < 1 秒
 - 如果仍然慢，检查 D1 数据库是否正常
 - 尝试清空浏览器缓存
+
+### 超出免费额度
+
+**症状**：Worker 返回 429 错误
+
+**解决方案**：
+1. 增大上报间隔（60-100 秒）
+2. 减少监控的服务器数量
+3. 升级到 Cloudflare Workers 付费套餐
+
+---
+
+## 🔒 安全建议
+
+1. **使用强密码**：API_SECRET 建议使用 20+ 位随机字符
+2. **启用密码保护**：如果不需要公开访问，取消勾选 **公开访问**
+3. **定期更换密码**：建议每 3-6 个月更换一次
+4. **使用 HTTPS**：Cloudflare Workers 默认强制 HTTPS
+5. **限制访问 IP**：可在 Cloudflare Firewall 中设置 IP 白名单
+
+---
+
+## 🔄 更新升级
+
+### 使用 Wrangler CLI
+
+```bash
+cd cf-probe-monitor
+git pull
+wrangler deploy
+```
+
+### 使用 Web 界面
+
+1. 下载最新的 `probe monitor.js`
+2. 登录 Cloudflare Dashboard
+3. 进入你的 Worker → **Quick Edit**
+4. 替换代码
+5. 点击 **Save and Deploy**
+
+**注意**：更新后无需重新安装探针，配置会自动保留。
+
+---
+
+## ❓ 常见问题
+
+### Q: 免费套餐够用吗？
+
+A: 对于个人用户（< 20 台服务器），完全够用。建议将上报间隔设置为 60 秒以上。
+
+### Q: 支持 IPv6 吗？
+
+A: 支持。探针会自动检测 IPv4 和 IPv6 连通性，并在卡片上显示徽章。
+
+### Q: 可以监控 Windows 服务器吗？
+
+A: 目前仅支持 Linux 系统。Windows 支持计划中。
+
+### Q: 数据会丢失吗？
+
+A: D1 数据库会自动备份，但建议定期导出重要数据。
+
+### Q: 可以同时监控多个 Worker 吗？
+
+A: 可以。每个 Worker 独立运行，互不影响。
 
 ---
 
