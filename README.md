@@ -528,8 +528,3 @@ A: 可以。每个 Worker 独立运行，互不影响。
 
 ---
 
-<div align="center">
-
-Made with ❤️ by [yzgolden86](https://github.com/yzgolden86)
-
-</div>
