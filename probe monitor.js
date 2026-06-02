@@ -260,32 +260,49 @@ export default {
         to { transform: scale(1); opacity: 1; }
       }
 
-      body.theme2 { background-color: #0d1117; color: #c9d1d9; }
+      body.theme2 { background-color: #0d1117; color: #e6edf3; }
       .theme2 .vps-card, .theme2 .header-card, .theme2 .chart-card { background: #161b22; color: #c9d1d9; box-shadow: 0 4px 6px rgba(0,0,0,0.4); border: 1px solid #30363d; }
       .theme2 .g-item { background: rgba(22, 27, 34, 0.6); border-color: #30363d; }
       .theme2 .vps-card:hover { border-color: #8b949e; }
       .theme2 .group-header { color: #58a6ff; background: #161b22; border-color: #30363d; }
       .theme2 .g-val { color: #fff; font-weight: 700; }
       .theme2 .g-label, .theme2 .g-sub { color: #c9d1d9; }
-      .theme2 .card-meta { color: #b8c2cc; }
+      .theme2 .card-meta { color: #dbeafe; }
+      .theme2 .header-title-wrapper h1 { background: none; -webkit-text-fill-color: #f0f6fc; color: #f0f6fc; text-shadow: 0 0 16px rgba(88, 166, 255, 0.28); }
+      .theme2 .header-subtitle { color: #b8c2cc; }
+      .theme2 .card-title-text { color: #f0f6fc; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+      .theme2 .vps-card:hover .card-title-text { background: none; -webkit-text-fill-color: #ffffff; color: #ffffff; }
+      .theme2 .meta-label { color: #9fb1c7; }
+      .theme2 .meta-value, .theme2 .card-footer-row, .theme2 .footer-cell, .theme2 .stat-header { color: #dce6f2; }
+      .theme2 .stat-header > span:last-child { background: none; -webkit-text-fill-color: #f0f6fc; color: #f0f6fc; }
       .theme2 .stat-bar, .theme2 .stat-bar-full { background: #21262d; }
       .theme2 .card-title { color: #fff; font-weight: 700; }
       .theme2 .view-controls { background: #0d1117; border: 1px solid #30363d; }
       .theme2 .toggle-btn { color: #8b949e; }
       .theme2 .toggle-btn:hover { color: #c9d1d9; }
       .theme2 .toggle-btn.active { background: #21262d; color: #58a6ff; border: 1px solid #30363d; }
-      .theme2 .custom-table { background: #161b22; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
-      .theme2 .custom-table th { background: #0d1117; color: #c9d1d9; border-bottom-color: #30363d; font-weight: 700; }
+      .theme2 .custom-table { background: #161b22; color: #e6edf3; border: 1px solid #30363d; box-shadow: none; }
+      .theme2 .custom-table th { background: #0d1117; color: #f0f6fc; border-bottom-color: #30363d; font-weight: 800; }
       .theme2 .custom-table td { border-bottom-color: #30363d; color: #e6edf3; }
+      .theme2 .custom-table tbody tr { background: #161b22; }
       .theme2 .custom-table tr:hover { background: #21262d; }
+      .theme2 .custom-table tbody tr:hover td { color: #f0f6fc; }
+      .theme2 .custom-table td[style*="var(--gray"],
+      .theme2 .custom-table td b,
+      .theme2 .custom-table td .os-text,
+      .theme2 .custom-table td [style*="var(--gray"] { color: #e6edf3 !important; }
+      .theme2 .custom-table tbody tr:hover td[style*="var(--gray"],
+      .theme2 .custom-table tbody tr:hover td b,
+      .theme2 .custom-table tbody tr:hover td .os-text,
+      .theme2 .custom-table tbody tr:hover td [style*="var(--gray"] { color: #ffffff !important; }
       .theme2 .filter-tag { background: #161b22; color: #e6edf3; border-color: #30363d; font-weight: 700; }
       .theme2 .filter-tag:hover { color: #58a6ff; border-color: #58a6ff; }
       .theme2 .header { background: rgba(22, 27, 34, 0.8); border-color: #30363d; }
       .theme2 .ping-box { background: #161b22; border-color: #30363d; }
       .theme2 .ping-box::before { opacity: 0.5; }
-      .theme2 .ping-box > span { color: #e6edf3; background: rgba(33, 38, 45, 0.6); font-weight: 700; }
-      .theme2 .ping-box > span:hover { background: rgba(88, 166, 255, 0.15); }
-      .theme2 .ping-box > span > span { color: #fff; font-weight: 800; }
+      .theme2 .ping-box > span, .theme2 .ping-item { color: #e6edf3; background: rgba(33, 38, 45, 0.72); font-weight: 700; }
+      .theme2 .ping-box > span:hover, .theme2 .ping-item:hover { background: rgba(88, 166, 255, 0.18); }
+      .theme2 .ping-box > span > span, .theme2 .ping-label, .theme2 .ping-value { color: #fff; font-weight: 800; }
       .theme2 .os-text { color: #c9d1d9; font-weight: 600; }
 
       body.theme3 { background-color: #fef3c7; color: #000; font-weight: 500; }
@@ -318,26 +335,44 @@ export default {
       .theme4 .ping-box > span:hover { background: rgba(255, 255, 255, 0.15); }
       .theme4 .filter-tag:hover { color: #fff; border-color: rgba(255, 255, 255, 0.6); }
 
-      body.theme5 { background-color: #0a0e27; color: #00ff9f; font-family: 'Courier New', Courier, monospace; }
+      body.theme5 { background-color: #0a0e27; color: #eafff7; font-family: 'Courier New', Courier, monospace; }
       .theme5 .vps-card, .theme5 .header-card, .theme5 .chart-card { background: #0f1419; border: 1px solid #00ff9f; border-radius: 0; box-shadow: 0 0 15px rgba(0, 255, 159, 0.3), inset 0 0 10px rgba(0, 255, 159, 0.05); color: #00ff9f; }
       .theme5 .g-item { background: #0f1419; border: 1px solid #00ff9f; border-radius: 0; box-shadow: 0 0 10px rgba(0, 255, 159, 0.2); }
       .theme5 .vps-card:hover { box-shadow: 0 0 25px rgba(0, 255, 159, 0.5), inset 0 0 15px rgba(0, 255, 159, 0.1); border-color: #00ff9f; }
       .theme5 .group-header { color: #ff006e; background: #0f1419; border: 1px solid #ff006e; border-radius: 0; text-shadow: 0 0 8px #ff006e; box-shadow: 0 0 10px rgba(255, 0, 110, 0.3); }
       .theme5 .g-val, .theme5 .card-title { color: #00ff9f; text-shadow: 0 0 8px #00ff9f; font-weight: 700; }
-      .theme5 .g-label, .theme5 .g-sub, .theme5 .card-meta { color: #a0aec0; }
+      .theme5 .g-label, .theme5 .g-sub, .theme5 .card-meta { color: #d7fff6; }
+      .theme5 .header-title-wrapper h1 { background: none; -webkit-text-fill-color: #00ff9f; color: #00ff9f; text-shadow: 0 0 10px rgba(0,255,159,0.85), 0 0 22px rgba(0,212,255,0.35); }
+      .theme5 .header-subtitle { color: #bfffee; text-shadow: 0 0 6px rgba(0,255,159,0.35); }
+      .theme5 .card-title-text { color: #eafff7; font-weight: 800; text-shadow: 0 0 8px rgba(0,255,159,0.65); }
+      .theme5 .vps-card:hover .card-title-text { background: none; -webkit-text-fill-color: #ffffff; color: #ffffff; }
+      .theme5 .meta-label { color: #00d4ff; text-shadow: 0 0 6px rgba(0,212,255,0.45); }
+      .theme5 .meta-value, .theme5 .card-footer-row, .theme5 .footer-cell, .theme5 .stat-header { color: #eafff7; }
+      .theme5 .stat-header > span:last-child { background: none; -webkit-text-fill-color: #ffffff; color: #ffffff; text-shadow: 0 0 8px rgba(0,255,159,0.55); }
       .theme5 .stat-bar, .theme5 .stat-bar-full { background: #1a1f2e; border: 1px solid #00ff9f; border-radius: 0; }
       .theme5 .stat-bar > div, .theme5 .stat-bar-full > div { background: linear-gradient(90deg, #00ff9f, #00d4ff) !important; box-shadow: 0 0 10px #00ff9f; border-radius: 0; }
       .theme5 .badge-bw { background: #ff006e; box-shadow: 0 0 8px #ff006e; }
       .theme5 .badge-tf { background: #00ff9f; color:#000; box-shadow: 0 0 8px #00ff9f; }
-      .theme5 .custom-table, .theme5 .filter-tag { background: #0f1419; border: 1px solid #00ff9f; border-radius: 0; box-shadow: 0 0 15px rgba(0, 255, 159, 0.2); color: #00ff9f; }
-      .theme5 .custom-table th { background: #0a0e1a; color: #ff006e; border-color: #1a1f2e; }
-      .theme5 .custom-table td { border-color: #1a1f2e; }
-      .theme5 .custom-table tr:hover { background: #1a1f2e; }
+      .theme5 .custom-table, .theme5 .filter-tag { background: #0f1419; border: 1px solid #00ff9f; border-radius: 0; box-shadow: 0 0 15px rgba(0, 255, 159, 0.2); color: #eafff7; }
+      .theme5 .custom-table th { background: #0a0e1a; color: #ff4fa3; border-color: #21403b; font-weight: 800; text-shadow: 0 0 7px rgba(255,0,110,0.5); }
+      .theme5 .custom-table td { border-color: #21403b; color: #eafff7; }
+      .theme5 .custom-table tbody tr { background: #0f1419; }
+      .theme5 .custom-table tr:hover { background: #14252a; }
+      .theme5 .custom-table tbody tr:hover td { color: #ffffff; }
+      .theme5 .custom-table td[style*="var(--gray"],
+      .theme5 .custom-table td b,
+      .theme5 .custom-table td .os-text,
+      .theme5 .custom-table td [style*="var(--gray"] { color: #eafff7 !important; }
+      .theme5 .custom-table tbody tr:hover td[style*="var(--gray"],
+      .theme5 .custom-table tbody tr:hover td b,
+      .theme5 .custom-table tbody tr:hover td .os-text,
+      .theme5 .custom-table tbody tr:hover td [style*="var(--gray"] { color: #ffffff !important; text-shadow: 0 0 6px rgba(0,255,159,0.45); }
       .theme5 .header { background: #0f1419; border: 1px solid #00ff9f; box-shadow: 0 0 15px rgba(0, 255, 159, 0.3); }
       .theme5 .ping-box { background: #0f1419; border-color: #00ff9f; }
       .theme5 .ping-box::before { background: linear-gradient(90deg, #00ff9f, #00d4ff, #ff006e); opacity: 0.5; }
-      .theme5 .ping-box > span { color: #00ff9f; }
-      .theme5 .ping-box > span:hover { background: rgba(0, 255, 159, 0.1); }
+      .theme5 .ping-box > span, .theme5 .ping-item { color: #eafff7; background: rgba(0, 255, 159, 0.08); }
+      .theme5 .ping-box > span:hover, .theme5 .ping-item:hover { background: rgba(0, 255, 159, 0.14); }
+      .theme5 .ping-label, .theme5 .ping-value { color: #ffffff; text-shadow: 0 0 7px rgba(0,255,159,0.6); }
       .theme5 .filter-tag:hover { color: #00ff9f; border-color: #00d4ff; box-shadow: 0 0 20px rgba(0, 255, 159, 0.4); }
 
       ${sys.theme === 'theme6' ? (sys.custom_css || '') : ''}
@@ -478,7 +513,10 @@ export default {
         transition: all 0.3s var(--ease-out);
         position: relative;
       }
-      .custom-table tbody tr::before {
+      .custom-table tbody td:first-child {
+        position: relative;
+      }
+      .custom-table tbody td:first-child::before {
         content: '';
         position: absolute;
         left: 0;
@@ -494,7 +532,7 @@ export default {
         transform: scale(1.002);
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       }
-      .custom-table tbody tr:hover::before {
+      .custom-table tbody tr:hover td:first-child::before {
         opacity: 1;
       }
       .custom-table tbody tr:hover td {
@@ -651,7 +689,7 @@ export default {
         color: var(--color-primary);
         opacity: 0.5;
       }
-      .theme2 .stat-subtext, .theme4 .stat-subtext, .theme5 .stat-subtext { color: rgba(255,255,255,0.6); }
+      .theme2 .stat-subtext, .theme4 .stat-subtext, .theme5 .stat-subtext { color: rgba(255,255,255,0.78); }
       .card-right {
         flex: 1;
         display: flex;
@@ -689,9 +727,9 @@ export default {
         font-size: 11px;
         margin-top: 14px;
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        padding: 14px 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        padding: 12px;
         border-radius: var(--radius-md);
         background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(139, 92, 246, 0.03));
         border: 1px solid var(--gray-200);
@@ -709,36 +747,55 @@ export default {
         background: linear-gradient(90deg, var(--color-primary), var(--color-purple), var(--color-pink));
         opacity: 0.3;
       }
-      .ping-box > span {
+      .ping-box > span,
+      .ping-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        padding: 6px 8px;
+        gap: 6px;
+        min-width: 0;
+        padding: 6px;
         color: var(--gray-900);
         font-weight: 800;
         font-size: 12px;
+        line-height: 1;
+        white-space: nowrap;
         border-radius: var(--radius-xs);
         transition: all 0.2s var(--ease-out);
         background: rgba(255,255,255,0.6);
       }
-      .ping-box > span:hover {
+      .ping-box > span:hover,
+      .ping-item:hover {
         background: rgba(255,255,255,0.9);
         transform: translateX(2px);
         box-shadow: var(--shadow-xs);
       }
-      .ping-box > span > span:first-child {
+      .ping-box > span > span:first-child,
+      .ping-label {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
         font-weight: 800;
         color: var(--gray-900);
+        flex: 0 0 auto;
+        min-width: 0;
+        white-space: nowrap;
       }
-      .ping-box > span > span:last-child {
+      .ping-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex: 0 0 5px;
+      }
+      .ping-box > span > span:last-child,
+      .ping-value {
         font-family: var(--font-mono);
         font-size: 12px;
         font-weight: 800;
         color: var(--gray-900);
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-feature-settings: "tnum";
       }
       .chart-full { grid-column: 1 / -1; }
       .chart-full canvas { max-height: 250px !important; }
@@ -2849,10 +2906,10 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             if (server.ip_v6 === '1') badgesHtml += `<span class="badge badge-v6">IPv6</span>`;
 
             const pingHtml = `<div class="ping-box">
-              <span><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#ef4444;"></span>电信</span> <span style="color:${getColor(server.ping_ct)}; font-weight:700;">${server.ping_ct === '0' ? '超时' : server.ping_ct + 'ms'}</span></span>
-              <span><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#f59e0b;"></span>联通</span> <span style="color:${getColor(server.ping_cu)}; font-weight:700;">${server.ping_cu === '0' ? '超时' : server.ping_cu + 'ms'}</span></span>
-              <span><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#3b82f6;"></span>移动</span> <span style="color:${getColor(server.ping_cm)}; font-weight:700;">${server.ping_cm === '0' ? '超时' : server.ping_cm + 'ms'}</span></span>
-              <span><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#8b5cf6;"></span>字节</span> <span style="color:${getColor(server.ping_bd)}; font-weight:700;">${server.ping_bd === '0' ? '超时' : server.ping_bd + 'ms'}</span></span>
+              <span class="ping-item"><span class="ping-label"><span class="ping-dot" style="background:#ef4444;"></span>电信</span><span class="ping-value" style="color:${getColor(server.ping_ct)};">${server.ping_ct === '0' ? '超时' : server.ping_ct + 'ms'}</span></span>
+              <span class="ping-item"><span class="ping-label"><span class="ping-dot" style="background:#f59e0b;"></span>联通</span><span class="ping-value" style="color:${getColor(server.ping_cu)};">${server.ping_cu === '0' ? '超时' : server.ping_cu + 'ms'}</span></span>
+              <span class="ping-item"><span class="ping-label"><span class="ping-dot" style="background:#3b82f6;"></span>移动</span><span class="ping-value" style="color:${getColor(server.ping_cm)};">${server.ping_cm === '0' ? '超时' : server.ping_cm + 'ms'}</span></span>
+              <span class="ping-item"><span class="ping-label"><span class="ping-dot" style="background:#8b5cf6;"></span>字节</span><span class="ping-value" style="color:${getColor(server.ping_bd)};">${server.ping_bd === '0' ? '超时' : server.ping_bd + 'ms'}</span></span>
             </div>`;
 
             const ramUsedStr = formatBytes((parseFloat(server.ram_used || 0) * 1048576).toString());
@@ -3218,7 +3275,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           }
 
           .card-left {
-            flex: 0 0 200px;
+            flex: 0 0 224px;
             display: flex;
             flex-direction: column;
             justify-content: center;
