@@ -58,14 +58,48 @@ export default {
     // ==========================================
     // 1. 认证机制与全局设置加载
     // ==========================================
-    const checkAuth = (req) => {
+    const textEncoder = new TextEncoder();
+    const sessionCookieName = 'cf_probe_session';
+    const sessionMaxAge = 60 * 60 * 24 * 7;
+
+    const toHex = (buffer) => Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    const signSession = async (value, secret) => {
+      const key = await crypto.subtle.importKey('raw', textEncoder.encode(secret || ''), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+      return toHex(await crypto.subtle.sign('HMAC', key, textEncoder.encode(value)));
+    };
+    const getCookieValue = (req, name) => {
+      const cookie = req.headers.get('Cookie') || '';
+      const match = cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+      return match ? decodeURIComponent(match[1]) : '';
+    };
+    const safeEqual = (a, b) => {
+      if (!a || !b || a.length !== b.length) return false;
+      let diff = 0;
+      for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+      return diff === 0;
+    };
+    const checkAuth = async (req, env) => {
       const authHeader = req.headers.get('Authorization');
-      if (!authHeader) return false;
-      const [scheme, encoded] = authHeader.split(' ');
-      if (scheme !== 'Basic' || !encoded) return false;
-      const decoded = atob(encoded);
-      const [username, password] = decoded.split(':');
-      return username === 'admin' && password === env.API_SECRET;
+      if (authHeader) {
+        try {
+          const [scheme, encoded] = authHeader.split(' ');
+          if (scheme === 'Basic' && encoded) {
+            const decoded = atob(encoded);
+            const sep = decoded.indexOf(':');
+            const username = sep >= 0 ? decoded.slice(0, sep) : '';
+            const password = sep >= 0 ? decoded.slice(sep + 1) : '';
+            if (username === 'admin' && password === env.API_SECRET) return true;
+          }
+        } catch (e) {}
+      }
+
+      const session = getCookieValue(req, sessionCookieName);
+      const [issuedAt, signature] = session.split('.');
+      const issuedAtNum = Number(issuedAt);
+      if (!issuedAt || !signature || !Number.isFinite(issuedAtNum)) return false;
+      if (issuedAtNum > Date.now() || Date.now() - issuedAtNum > sessionMaxAge * 1000) return false;
+      const expected = await signSession(`admin:${issuedAt}`, env.API_SECRET);
+      return safeEqual(signature, expected);
     };
 
     const authResponse = (realmTitle) => new Response('Unauthorized', {
@@ -106,6 +140,196 @@ export default {
         results.forEach(r => sys[r.key] = r.value);
       }
     } catch (e) {}
+
+    const getLoginHtml = (sys, error = '') => `<!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${sys.admin_title} - 登录</title>
+        <style>
+          :root { color-scheme: light; }
+          * { box-sizing: border-box; }
+          body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #0f172a;
+            background:
+              radial-gradient(circle at 20% 10%, rgba(59,130,246,0.16), transparent 30%),
+              radial-gradient(circle at 82% 18%, rgba(16,185,129,0.14), transparent 26%),
+              linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+          }
+          .login-shell {
+            width: min(960px, 100%);
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 24px;
+            background: rgba(255,255,255,0.82);
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(22px) saturate(160%);
+          }
+          .login-panel {
+            padding: 42px;
+            background: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 500px;
+          }
+          .brand-mark {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            color: white;
+            font-weight: 900;
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.34);
+          }
+          .login-panel h1 {
+            margin: 28px 0 12px;
+            font-size: 34px;
+            line-height: 1.12;
+            letter-spacing: 0;
+          }
+          .login-panel p {
+            max-width: 340px;
+            margin: 0;
+            color: #b6c3d4;
+            line-height: 1.7;
+            font-size: 14px;
+          }
+          .signal-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 30px;
+          }
+          .signal {
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+          }
+          .signal b { display: block; color: white; font-size: 16px; margin-bottom: 4px; }
+          .signal span { color: #94a3b8; font-size: 12px; }
+          .login-form {
+            padding: 42px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 18px;
+          }
+          .login-form h2 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 0;
+          }
+          .login-form .hint {
+            margin: -8px 0 4px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+          }
+          label {
+            display: grid;
+            gap: 8px;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+          }
+          input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 14px 15px;
+            font-size: 15px;
+            color: #0f172a;
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+          }
+          input:focus {
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
+          }
+          button {
+            margin-top: 6px;
+            border: 0;
+            border-radius: 14px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            box-shadow: 0 12px 28px rgba(37,99,235,0.28);
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          button:hover { transform: translateY(-1px); box-shadow: 0 16px 34px rgba(37,99,235,0.34); }
+          .error {
+            padding: 11px 13px;
+            border-radius: 12px;
+            color: #991b1b;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            font-size: 13px;
+            font-weight: 700;
+          }
+          .login-foot {
+            color: #94a3b8;
+            font-size: 12px;
+            text-align: center;
+          }
+          @media (max-width: 820px) {
+            body { padding: 14px; }
+            .login-shell { grid-template-columns: 1fr; border-radius: 18px; }
+            .login-panel { min-height: auto; padding: 28px; }
+            .login-form { padding: 28px; }
+            .signal-row { grid-template-columns: 1fr; }
+          }
+        </style>
+      </head>
+      <body>
+        <main class="login-shell">
+          <section class="login-panel">
+            <div>
+              <div class="brand-mark">CF</div>
+              <h1>${sys.admin_title}</h1>
+              <p>集中管理探针节点、主题、告警和测速配置。登录后会保持 7 天会话。</p>
+              <div class="signal-row">
+                <div class="signal"><b>API</b><span>密钥保护</span></div>
+                <div class="signal"><b>D1</b><span>数据持久化</span></div>
+                <div class="signal"><b>TLS</b><span>安全 Cookie</span></div>
+              </div>
+            </div>
+            <div class="login-foot">CF Probe Monitor Admin</div>
+          </section>
+          <form class="login-form" method="POST" action="/admin/login">
+            <h2>管理员登录</h2>
+            <p class="hint">用户名固定为 admin，密码使用部署时配置的 API_SECRET。</p>
+            ${error ? `<div class="error">${error}</div>` : ''}
+            <label>用户名<input name="username" value="admin" autocomplete="username" required></label>
+            <label>密码<input name="password" type="password" autocomplete="current-password" required autofocus></label>
+            <button type="submit">进入管理后台</button>
+          </form>
+        </main>
+      </body>
+      </html>`;
+
+    const redirectResponse = (location, status = 302, headers = {}) => new Response(null, {
+      status,
+      headers: { Location: location, ...headers }
+    });
 
     // ==========================================
     // Telegram 离线检测与通知机制
@@ -802,10 +1026,45 @@ export default {
     `;
 
     // ==========================================
+    // 后台登录 (/admin/login, /admin/logout)
+    // ==========================================
+    if (request.method === 'GET' && url.pathname === '/admin/login') {
+      if (await checkAuth(request, env)) return redirectResponse('/admin');
+      return new Response(getLoginHtml(sys), { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+    }
+
+    if (request.method === 'POST' && url.pathname === '/admin/login') {
+      const form = await request.formData();
+      const username = (form.get('username') || '').toString();
+      const password = (form.get('password') || '').toString();
+
+      if (username === 'admin' && password === env.API_SECRET) {
+        const issuedAt = Date.now().toString();
+        const signature = await signSession(`admin:${issuedAt}`, env.API_SECRET);
+        const secureCookie = url.protocol === 'https:' ? '; Secure' : '';
+        return redirectResponse('/admin', 303, {
+          'Set-Cookie': `${sessionCookieName}=${encodeURIComponent(`${issuedAt}.${signature}`)}; Max-Age=${sessionMaxAge}; Path=/; HttpOnly; SameSite=Lax${secureCookie}`
+        });
+      }
+
+      return new Response(getLoginHtml(sys, '用户名或密码不正确'), {
+        status: 401,
+        headers: { 'Content-Type': 'text/html;charset=UTF-8' }
+      });
+    }
+
+    if (request.method === 'GET' && url.pathname === '/admin/logout') {
+      const secureCookie = url.protocol === 'https:' ? '; Secure' : '';
+      return redirectResponse('/admin/login', 302, {
+        'Set-Cookie': `${sessionCookieName}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax${secureCookie}`
+      });
+    }
+
+    // ==========================================
     // 后台管理 API (/admin/api)
     // ==========================================
     if (request.method === 'POST' && url.pathname === '/admin/api') {
-      if (!checkAuth(request)) return authResponse(sys.admin_title);
+      if (!(await checkAuth(request, env))) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
       try {
         const data = await request.json();
 
@@ -846,7 +1105,7 @@ export default {
     // 后台管理 UI (/admin)
     // ==========================================
     if (request.method === 'GET' && url.pathname === '/admin') {
-      if (!checkAuth(request)) return authResponse(sys.admin_title);
+      if (!(await checkAuth(request, env))) return redirectResponse('/admin/login');
       
       const { results } = await env.DB.prepare('SELECT id, name, last_updated, server_group, price, expire_date, bandwidth, traffic_limit, agent_os, is_hidden FROM servers').all();
       const now = Date.now();
@@ -1648,6 +1907,13 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
           .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 100; overflow-y: auto; animation: fadeIn 0.2s ease; }
           @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
           @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+          .admin-top { max-width: 1180px; margin: 0 auto 18px auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+          .admin-top h1 { margin: 0; font-size: 24px; color: var(--gray-900); letter-spacing: 0; }
+          .admin-actions { display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+          .admin-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 9px; text-decoration: none; font-size: 13px; font-weight: 700; border: 1px solid var(--gray-200); color: var(--gray-700); background: white; box-shadow: var(--shadow-sm); transition: all 0.2s var(--ease-out); }
+          .admin-link:hover { transform: translateY(-1px); border-color: var(--color-primary); color: var(--color-primary); }
+          .admin-link-danger { color: #b91c1c; border-color: #fecaca; background: #fff5f5; }
+          .admin-link-danger:hover { color: #991b1b; border-color: #f87171; }
           .modal-content { background: white; padding: 26px; border-radius: 14px; width: 460px; max-width: 95%; margin: 50px auto; position: relative; max-height: 85vh; overflow-y: auto; box-sizing: border-box; box-shadow: var(--shadow-xl); border: 1px solid var(--gray-200); animation: slideUp 0.25s var(--ease-out); }
           .modal-content h3 { margin: 0 0 18px 0; font-size: 17px; font-weight: 700; color: var(--gray-900); padding-bottom: 12px; border-bottom: 1px solid var(--gray-100); }
           .modal input, .modal select { width: 100%; padding: 9px 11px; margin-bottom: 14px; border: 1px solid var(--gray-300); border-radius: 7px; box-sizing: border-box; font-size: 13px; color: var(--gray-800); transition: all 0.15s; }
@@ -1656,6 +1922,13 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
         </style>
       </head>
       <body>
+        <div class="admin-top">
+          <h1>${sys.admin_title}</h1>
+          <div class="admin-actions">
+            <a class="admin-link" href="/">前往大盘预览</a>
+            <a class="admin-link admin-link-danger" href="/admin/logout">退出登录</a>
+          </div>
+        </div>
         <div class="card">
           <h2>🛠️ 全局设置与高级自定义</h2>
           <div class="settings-grid">
@@ -1989,7 +2262,25 @@ echo "开始安装全面增强版 CF Probe Agent (${osType === 'alpine' ? 'Alpin
 `;
 
       if (osType === 'alpine') {
-        bashScript += `rc-service cf-probe stop 2>/dev/null\n`;
+        bashScript += `if ! command -v apk >/dev/null 2>&1; then
+  echo "错误: 当前不是 Alpine/apk 环境，请使用 os=debian 安装命令。"
+  exit 1
+fi
+
+NEEDED_PACKAGES=""
+command -v ${cmdApp} >/dev/null 2>&1 || NEEDED_PACKAGES="$NEEDED_PACKAGES curl"
+if ! command -v rc-service >/dev/null 2>&1 || ! command -v rc-update >/dev/null 2>&1; then NEEDED_PACKAGES="$NEEDED_PACKAGES openrc"; fi
+command -v ss >/dev/null 2>&1 || NEEDED_PACKAGES="$NEEDED_PACKAGES iproute2"
+command -v free >/dev/null 2>&1 || NEEDED_PACKAGES="$NEEDED_PACKAGES procps"
+
+if [ -n "$NEEDED_PACKAGES" ]; then
+  echo "安装 Alpine 依赖:$NEEDED_PACKAGES"
+  apk add --no-cache $NEEDED_PACKAGES
+fi
+
+mkdir -p /run/openrc
+touch /run/openrc/softlevel
+rc-service cf-probe stop 2>/dev/null\n`;
       } else {
         bashScript += `${sh_sys} stop cf-probe.service 2>/dev/null\n`;
       }
@@ -2311,7 +2602,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
     // 单个服务器详情 JSON API
     // ==========================================
     if (request.method === 'GET' && url.pathname === '/api/server') {
-      if (sys.is_public !== 'true' && !checkAuth(request)) return authResponse(sys.site_title);
+      if (sys.is_public !== 'true' && !(await checkAuth(request, env))) return authResponse(sys.site_title);
       
       const id = url.searchParams.get('id');
       if (!id) return new Response('Miss ID', { status: 400 });
@@ -2324,7 +2615,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
     // 前台探针首页 & 详情页 (/ )
     // ==========================================
     if (request.method === 'GET' && url.pathname === '/') {
-      if (sys.is_public !== 'true' && !checkAuth(request)) {
+      if (sys.is_public !== 'true' && !(await checkAuth(request, env))) {
         return authResponse(sys.site_title);
       }
 
