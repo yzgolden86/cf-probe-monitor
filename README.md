@@ -336,29 +336,6 @@ wrangler d1 execute probe-db --file=backup.sql
 - 重新部署 Worker
 
 ---
-
-## 📝 更新日志
-
-### v1.1.0 (2024-01-XX)
-- 🎨 优化延迟标签布局，改为 2x2 网格排列
-- 🌈 增强暗黑/赛博朋克主题字体对比度
-- 🔒 新增基础防刷保护（IP 速率限制）
-- 📊 优化历史数据图表性能
-- 🐛 修复若干已知问题
-
-### v1.0.0 (2024-01-XX)
-- 🎉 首次发布
-- ✨ 支持 6 套主题
-- 📊 支持 3 种视图模式
-- 🔔 支持 Telegram 告警
-- 📈 支持历史数据图表
-
----
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
 ### 开发环境
 ```bash
 # 克隆项目
@@ -386,13 +363,7 @@ wrangler deploy
 - [Leaflet](https://leafletjs.com/) - 地图库
 - [Chart.js](https://www.chartjs.org/) - 图表库
 - [Flagcdn](https://flagcdn.com/) - 国旗图标
-
----
-
-## 📮 联系方式
-
-- GitHub: [@yzgolden86](https://github.com/yzgolden86)
-- Issues: [提交问题](https://github.com/yzgolden86/cf-probe-monitor/issues)
+- [CF-Server-Monitor-Pro](https://github.com/a63414262/CF-Server-Monitor-Pro) - 在此仓库上进行整合和修改
 
 ---
 
