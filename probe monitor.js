@@ -128,7 +128,7 @@ export default {
       tg_bot_token: '',
       tg_chat_id: '',
       auto_reset_traffic: 'false',
-      report_interval: '5',
+      report_interval: '30',
       ping_node_ct: 'default',
       ping_node_cu: 'default',
       ping_node_cm: 'default'
@@ -140,6 +140,12 @@ export default {
         results.forEach(r => sys[r.key] = r.value);
       }
     } catch (e) {}
+
+    const reportIntervalSeconds = Math.max(1, parseInt(sys.report_interval || '30', 10) || 30);
+    const onlineThresholdMs = Math.max(30000, reportIntervalSeconds * 3 * 1000);
+    const offlineAlertThresholdMs = Math.max(120000, reportIntervalSeconds * 4 * 1000);
+    const homeRefreshMs = 15000;
+    const detailRefreshMs = 10000;
 
     const getLoginHtml = (sys, error = '') => `<!DOCTYPE html>
       <html>
@@ -358,10 +364,10 @@ export default {
 
         for (const s of allServers) {
           const diff = now - s.last_updated;
-          const isOffline = diff > 120000; 
+          const isOffline = diff > offlineAlertThresholdMs; 
 
           if (isOffline && !alertState[s.id]) {
-            await sendTelegram(`⚠️ <b>节点离线告警</b>\n\n<b>节点名称:</b> ${s.name}\n<b>状态:</b> 离线 (超过2分钟未上报)\n<b>时间:</b> ${new Date().toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})}`);
+            await sendTelegram(`⚠️ <b>节点离线告警</b>\n\n<b>节点名称:</b> ${s.name}\n<b>状态:</b> 离线 (超过${Math.round(offlineAlertThresholdMs / 1000)}秒未上报)\n<b>时间:</b> ${new Date().toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})}`);
             alertState[s.id] = true;
             stateChanged = true;
           } else if (!isOffline && alertState[s.id]) {
@@ -1113,7 +1119,7 @@ export default {
       let trs = '';
       if (results && results.length > 0) {
         for (const s of results) {
-          const isOnline = (now - s.last_updated) < 30000;
+          const isOnline = (now - s.last_updated) < onlineThresholdMs;
           const status = isOnline ? '<span style="color:green; font-weight:bold;">在线</span>' : '<span style="color:red; font-weight:bold;">离线</span>';
           const hiddenBadge = s.is_hidden === 'true' ? '<span style="background:#64748b; color:white; padding:2px 6px; border-radius:4px; font-size:12px; margin-left:5px;">已隐藏</span>' : '';
           
@@ -1979,8 +1985,8 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
               </div>
               <div class="form-group">
                 <label>⏱️ Agent 上报间隔 (秒)</label>
-                <input type="number" id="cfg_report_interval" value="${sys.report_interval || '5'}" min="1" max="120" placeholder="默认 5 秒">
-                <span style="font-size:12px; color:#ef4444; margin-top:5px; display:block; font-weight:bold;">* 友情提示：间隔越短，消耗的 Worker 每日请求次数越多。如果 VPS 较多，建议将上报间隔增大至 60-100 秒。</span>
+                <input type="number" id="cfg_report_interval" value="${sys.report_interval || '30'}" min="1" max="120" placeholder="默认 30 秒">
+                <span style="font-size:12px; color:#ef4444; margin-top:5px; display:block; font-weight:bold;">* 友情提示：Worker Free 下 10 台以内建议 30 秒；间隔越短，每日请求和 D1 写入消耗越多。</span>
               </div>
             </div>
             <div>
@@ -2166,7 +2172,7 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
                 tg_notify: document.getElementById('cfg_tg_notify').value,
                 tg_bot_token: document.getElementById('cfg_tg_bot_token').value,
                 tg_chat_id: document.getElementById('cfg_tg_chat_id').value,
-                report_interval: document.getElementById('cfg_report_interval').value || '5',
+                report_interval: document.getElementById('cfg_report_interval').value || '30',
                 ping_node_ct: document.getElementById('cfg_ping_node_ct').value,
                 ping_node_cu: document.getElementById('cfg_ping_node_cu').value,
                 ping_node_cm: document.getElementById('cfg_ping_node_cm').value
@@ -2229,7 +2235,7 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
     // 一键安装脚本 (/install.sh)
     // ==========================================
     if (request.method === 'GET' && url.pathname === '/install.sh') {
-      let reportInterval = '5';
+      let reportInterval = '30';
       let pingCt = 'default';
       let pingCu = 'default';
       let pingCm = 'default';
@@ -2237,7 +2243,7 @@ cq-ct-dualstack.ip.zstaticcdn.com:80`;
         const res = await env.DB.prepare("SELECT key, value FROM settings WHERE key IN ('report_interval', 'ping_node_ct', 'ping_node_cu', 'ping_node_cm')").all();
         if (res && res.results) {
            res.results.forEach(r => {
-              if (r.key === 'report_interval') reportInterval = r.value || '5';
+              if (r.key === 'report_interval') reportInterval = r.value || '30';
               if (r.key === 'ping_node_ct') pingCt = r.value || 'default';
               if (r.key === 'ping_node_cu') pingCu = r.value || 'default';
               if (r.key === 'ping_node_cm') pingCm = r.value || 'default';
@@ -2413,8 +2419,10 @@ while true; do
   if [ -z "\\$RX_NOW" ]; then RX_NOW=0; fi
   if [ -z "\\$TX_NOW" ]; then TX_NOW=0; fi
 
-  RX_SPEED=\\$(((RX_NOW - RX_PREV) / 5))
-  TX_SPEED=\\$(((TX_NOW - TX_PREV) / 5))
+  SPEED_INTERVAL=\\$REPORT_INTERVAL
+  if [ -z "\\$SPEED_INTERVAL" ] || [ "\\$SPEED_INTERVAL" -le 0 ] 2>/dev/null; then SPEED_INTERVAL=1; fi
+  RX_SPEED=\\$(((RX_NOW - RX_PREV) / SPEED_INTERVAL))
+  TX_SPEED=\\$(((TX_NOW - TX_PREV) / SPEED_INTERVAL))
   RX_PREV=\\$RX_NOW; TX_PREV=\\$TX_NOW
   
   PAYLOAD="{\\"id\\": \\"\\$SERVER_ID\\", \\"secret\\": \\"\\$SECRET\\", \\"metrics\\": { \\"cpu\\": \\"\\$CPU\\", \\"ram\\": \\"\\$RAM\\", \\"ram_total\\": \\"\\$RAM_TOTAL\\", \\"ram_used\\": \\"\\$RAM_USED\\", \\"swap_total\\": \\"\\$SWAP_TOTAL\\", \\"swap_used\\": \\"\\$SWAP_USED\\", \\"disk\\": \\"\\$DISK\\", \\"disk_total\\": \\"\\$DISK_TOTAL\\", \\"disk_used\\": \\"\\$DISK_USED\\", \\"load\\": \\"\\$LOAD\\", \\"uptime\\": \\"\\$UPTIME\\", \\"boot_time\\": \\"\\$BOOT_TIME\\", \\"net_rx\\": \\"\\$RX_NOW\\", \\"net_tx\\": \\"\\$TX_NOW\\", \\"net_in_speed\\": \\"\\$RX_SPEED\\", \\"net_out_speed\\": \\"\\$TX_SPEED\\", \\"os\\": \\"\\$OS\\", \\"arch\\": \\"\\$ARCH\\", \\"cpu_info\\": \\"\\$CPU_INFO\\", \\"processes\\": \\"\\$PROCESSES\\", \\"tcp_conn\\": \\"\\$TCP_CONN\\", \\"udp_conn\\": \\"\\$UDP_CONN\\", \\"ip_v4\\": \\"\\$IPV4\\", \\"ip_v6\\": \\"\\$IPV6\\", \\"ping_ct\\": \\"\\$PING_CT\\", \\"ping_cu\\": \\"\\$PING_CU\\", \\"ping_cm\\": \\"\\$PING_CM\\", \\"ping_bd\\": \\"\\$PING_BD\\", \\"virt\\": \\"\\$VIRT\\" }}"
@@ -2592,7 +2600,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
 
         ctx.waitUntil(checkOfflineNodes());
         
-        return new Response(`INTERVAL=${sys.report_interval || '5'}|CT=${sys.ping_node_ct || 'default'}|CU=${sys.ping_node_cu || 'default'}|CM=${sys.ping_node_cm || 'default'}`, { status: 200 });
+        return new Response(`INTERVAL=${sys.report_interval || '30'}|CT=${sys.ping_node_ct || 'default'}|CU=${sys.ping_node_cu || 'default'}|CM=${sys.ping_node_cm || 'default'}`, { status: 200 });
       } catch (e) {
         return new Response('Error', { status: 400 });
       }
@@ -2959,6 +2967,9 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                 options: pingOptions 
             });
 
+            const ONLINE_THRESHOLD_MS = ${onlineThresholdMs};
+            const DETAIL_REFRESH_MS = ${detailRefreshMs};
+
             async function fetchData() {
               try {
                 const res = await fetch('/api/server?id=' + serverId); const data = await res.json();
@@ -2967,7 +2978,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                 document.getElementById('val-uptime').innerText = data.uptime || 'N/A'; document.getElementById('val-arch').innerText = data.arch || 'N/A'; document.getElementById('val-os').innerText = data.os || 'N/A'; document.getElementById('val-virt').innerText = data.virt || 'N/A'; document.getElementById('val-cpuinfo').innerText = data.cpu_info || 'N/A'; document.getElementById('val-load').innerText = data.load_avg || '0.00'; document.getElementById('val-boot').innerText = data.boot_time || 'N/A'; 
                 document.getElementById('val-traffic').innerText = formatBytes(data.${txField} || 0) + ' / ' + formatBytes(data.${rxField} || 0);
 
-                const isOnline = (Date.now() - data.last_updated) < 30000;
+                const isOnline = (Date.now() - data.last_updated) < ONLINE_THRESHOLD_MS;
                 const badge = document.getElementById('head-status'); badge.innerText = isOnline ? '在线' : '离线'; badge.style.background = isOnline ? '#10b981' : '#ef4444';
                 if(!isOnline) return;
                 
@@ -3008,7 +3019,9 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                 }
               } catch (e) {}
             }
-            setInterval(fetchData, 3000); fetchData();
+            setInterval(() => { if (!document.hidden) fetchData(); }, DETAIL_REFRESH_MS);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchData(); });
+            fetchData();
           </script>
           ${sys.custom_script || ''}
         </body>
@@ -3036,7 +3049,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
 
       if (results && results.length > 0) {
         for (const server of results) {
-          const isOnline = (now - server.last_updated) < 30000;
+          const isOnline = (now - server.last_updated) < onlineThresholdMs;
           if (isOnline) {
             globalOnline++;
             globalSpeedIn += parseFloat(server.net_in_speed) || 0;
@@ -3138,7 +3151,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           cardContentHtml += `<div class="group-header">${grpName}</div><div class="grid-container">`;
           
           for (const server of grpServers) {
-            const isOnline = (now - server.last_updated) < 30000;
+            const isOnline = (now - server.last_updated) < onlineThresholdMs;
             const statusColor = isOnline ? '#10b981' : '#ef4444'; 
             
             const cpu = parseFloat(server.cpu || '0').toFixed(1); 
@@ -4002,7 +4015,8 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
              applyFilter();
           });
 
-          setInterval(async () => {
+          const HOME_REFRESH_MS = ${homeRefreshMs};
+          async function refreshDashboard() {
             try {
               const currentUrl = new URL(location.href);
               currentUrl.searchParams.set('ajax', '1');
@@ -4033,7 +4047,9 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             } catch (e) {
               console.log('Ajax Refresh Failed', e);
             }
-          }, 4000);
+          }
+          setInterval(() => { if (!document.hidden) refreshDashboard(); }, HOME_REFRESH_MS);
+          document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDashboard(); });
         </script>
         
         ${sys.custom_script || ''}
