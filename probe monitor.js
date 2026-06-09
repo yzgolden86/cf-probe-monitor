@@ -30,6 +30,7 @@ export default {
           monthly_rx: "TEXT DEFAULT '0'", monthly_tx: "TEXT DEFAULT '0'", last_rx: "TEXT DEFAULT '0'", last_tx: "TEXT DEFAULT '0'", reset_month: "TEXT DEFAULT ''",
           agent_os: "TEXT DEFAULT 'debian'",
           history: "TEXT DEFAULT '{}'",
+          history_last_time: "TEXT DEFAULT '0'",
           is_hidden: "TEXT DEFAULT 'false'",
           virt: "TEXT DEFAULT ''"
         };
@@ -353,6 +354,11 @@ export default {
 
     const checkOfflineNodes = async () => {
       if (sys.tg_notify !== 'true') return;
+      const now = Date.now();
+      const offlineCheckIntervalMs = Math.max(60000, Math.min(300000, Math.floor(offlineAlertThresholdMs / 2)));
+      if (globalThis.cfProbeLastOfflineCheckAt && now - globalThis.cfProbeLastOfflineCheckAt < offlineCheckIntervalMs) return;
+      globalThis.cfProbeLastOfflineCheckAt = now;
+
       try {
         const { results: allServers } = await env.DB.prepare('SELECT id, name, last_updated FROM servers').all();
         let alertState = {};
@@ -360,7 +366,6 @@ export default {
         if (stateRes) alertState = JSON.parse(stateRes.value);
 
         let stateChanged = false;
-        const now = Date.now();
 
         for (const s of allServers) {
           const diff = now - s.last_updated;
@@ -2505,7 +2510,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
         let countryCode = request.cf && request.cf.country ? request.cf.country : 'XX';
         if (countryCode.toUpperCase() === 'TW') countryCode = 'CN';
 
-        const serverExists = await env.DB.prepare('SELECT * FROM servers WHERE id = ?').bind(id).first();
+        const serverExists = await env.DB.prepare('SELECT net_rx, net_tx, monthly_rx, monthly_tx, last_rx, last_tx, reset_month, history_last_time FROM servers WHERE id = ?').bind(id).first();
         if (!serverExists) return new Response('Server not found', { status: 404 });
 
         const nowTime = new Date();
@@ -2534,14 +2539,14 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
 
         last_rx = current_rx; last_tx = current_tx;
 
-        // 提取并更新历史数据
-        let history = {};
-        try { history = JSON.parse(serverExists.history || '{}'); } catch(e) {}
-        
         const nowMs = Date.now();
-        const lastHistTime = history.last_time || 0;
+        const lastHistTime = parseInt(serverExists.history_last_time || '0', 10) || 0;
+        let historyStr = null;
         
-        if (nowMs - lastHistTime >= 300000 || !history.time) {
+        if (nowMs - lastHistTime >= 300000) {
+            const historyRow = await env.DB.prepare('SELECT history FROM servers WHERE id = ?').bind(id).first();
+            let history = {};
+            try { history = JSON.parse((historyRow && historyRow.history) || '{}'); } catch(e) {}
             const maxPoints = 288; 
             const updateArr = (arr, val) => {
                 if (!Array.isArray(arr)) arr = [];
@@ -2571,21 +2576,11 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             history.ping_bd = updateArr(history.ping_bd, parseInt(metrics.ping_bd) || 0);
             history.time = updateLabels(history.time);
             history.last_time = nowMs;
+            historyStr = JSON.stringify(history);
         }
 
-        const historyStr = JSON.stringify(history);
-
-        await env.DB.prepare(`
-          UPDATE servers 
-          SET cpu = ?, ram = ?, disk = ?, load_avg = ?, uptime = ?, last_updated = ?,
-              ram_total = ?, net_rx = ?, net_tx = ?, net_in_speed = ?, net_out_speed = ?,
-              os = ?, cpu_info = ?, arch = ?, boot_time = ?, ram_used = ?, swap_total = ?, 
-              swap_used = ?, disk_total = ?, disk_used = ?, processes = ?, tcp_conn = ?, udp_conn = ?, 
-              country = ?, ip_v4 = ?, ip_v6 = ?, ping_ct = ?, ping_cu = ?, ping_cm = ?, ping_bd = ?,
-              monthly_rx = ?, monthly_tx = ?, last_rx = ?, last_tx = ?, reset_month = ?, history = ?, virt = ?
-          WHERE id = ?
-        `).bind(
-          metrics.cpu, metrics.ram, metrics.disk, metrics.load, metrics.uptime, Date.now(),
+        const updateValues = [
+          metrics.cpu, metrics.ram, metrics.disk, metrics.load, metrics.uptime, nowMs,
           metrics.ram_total || '0', metrics.net_rx || '0', metrics.net_tx || '0', 
           metrics.net_in_speed || '0', metrics.net_out_speed || '0', 
           metrics.os || '', metrics.cpu_info || '', metrics.arch || '', metrics.boot_time || '',
@@ -2594,9 +2589,32 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           metrics.tcp_conn || '0', metrics.udp_conn || '0', countryCode, 
           metrics.ip_v4 || '0', metrics.ip_v6 || '0', 
           metrics.ping_ct || '0', metrics.ping_cu || '0', metrics.ping_cm || '0', metrics.ping_bd || '0', 
-          monthly_rx.toString(), monthly_tx.toString(), last_rx.toString(), last_tx.toString(), reset_month, historyStr, metrics.virt || '',
-          id
-        ).run();
+          monthly_rx.toString(), monthly_tx.toString(), last_rx.toString(), last_tx.toString(), reset_month
+        ];
+
+        if (historyStr !== null) {
+          await env.DB.prepare(`
+            UPDATE servers
+            SET cpu = ?, ram = ?, disk = ?, load_avg = ?, uptime = ?, last_updated = ?,
+                ram_total = ?, net_rx = ?, net_tx = ?, net_in_speed = ?, net_out_speed = ?,
+                os = ?, cpu_info = ?, arch = ?, boot_time = ?, ram_used = ?, swap_total = ?,
+                swap_used = ?, disk_total = ?, disk_used = ?, processes = ?, tcp_conn = ?, udp_conn = ?,
+                country = ?, ip_v4 = ?, ip_v6 = ?, ping_ct = ?, ping_cu = ?, ping_cm = ?, ping_bd = ?,
+                monthly_rx = ?, monthly_tx = ?, last_rx = ?, last_tx = ?, reset_month = ?, history = ?, history_last_time = ?, virt = ?
+            WHERE id = ?
+          `).bind(...updateValues, historyStr, nowMs.toString(), metrics.virt || '', id).run();
+        } else {
+          await env.DB.prepare(`
+            UPDATE servers
+            SET cpu = ?, ram = ?, disk = ?, load_avg = ?, uptime = ?, last_updated = ?,
+                ram_total = ?, net_rx = ?, net_tx = ?, net_in_speed = ?, net_out_speed = ?,
+                os = ?, cpu_info = ?, arch = ?, boot_time = ?, ram_used = ?, swap_total = ?,
+                swap_used = ?, disk_total = ?, disk_used = ?, processes = ?, tcp_conn = ?, udp_conn = ?,
+                country = ?, ip_v4 = ?, ip_v6 = ?, ping_ct = ?, ping_cu = ?, ping_cm = ?, ping_bd = ?,
+                monthly_rx = ?, monthly_tx = ?, last_rx = ?, last_tx = ?, reset_month = ?, virt = ?
+            WHERE id = ?
+          `).bind(...updateValues, metrics.virt || '', id).run();
+        }
 
         ctx.waitUntil(checkOfflineNodes());
         
@@ -2614,7 +2632,14 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
       
       const id = url.searchParams.get('id');
       if (!id) return new Response('Miss ID', { status: 400 });
-      const server = await env.DB.prepare('SELECT * FROM servers WHERE id = ?').bind(id).first();
+      const lite = url.searchParams.get('lite') === '1';
+      const serverSelect = lite ? `
+        id, name, cpu, ram, disk, load_avg, uptime, last_updated, ram_total, net_rx, net_tx,
+        net_in_speed, net_out_speed, os, cpu_info, arch, boot_time, ram_used, swap_total,
+        swap_used, disk_total, disk_used, processes, tcp_conn, udp_conn, country, ip_v4, ip_v6,
+        ping_ct, ping_cu, ping_cm, ping_bd, monthly_rx, monthly_tx, virt, is_hidden
+      ` : '*';
+      const server = await env.DB.prepare(`SELECT ${serverSelect} FROM servers WHERE id = ?`).bind(id).first();
       if (!server || server.is_hidden === 'true') return new Response('Not Found', { status: 404 });
       return new Response(JSON.stringify(server), { headers: { 'Content-Type': 'application/json' } });
     }
@@ -2664,7 +2689,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
       const viewId = url.searchParams.get('id');
 
       if (viewId) {
-        const server = await env.DB.prepare('SELECT * FROM servers WHERE id = ?').bind(viewId).first();
+        const server = await env.DB.prepare('SELECT id, name, is_hidden FROM servers WHERE id = ?').bind(viewId).first();
         if (!server || server.is_hidden === 'true') return new Response('Server not found', { status: 404 });
         
         const rxField = sys.auto_reset_traffic === 'true' ? 'monthly_rx' : 'net_rx';
@@ -2969,10 +2994,16 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
 
             const ONLINE_THRESHOLD_MS = ${onlineThresholdMs};
             const DETAIL_REFRESH_MS = ${detailRefreshMs};
+            let detailFetchCount = 0;
+            let detailFetchInFlight = false;
 
             async function fetchData() {
+              if (detailFetchInFlight) return;
+              detailFetchInFlight = true;
               try {
-                const res = await fetch('/api/server?id=' + serverId); const data = await res.json();
+                const includeHistory = detailFetchCount % 6 === 0;
+                detailFetchCount++;
+                const res = await fetch('/api/server?id=' + serverId + (includeHistory ? '' : '&lite=1')); const data = await res.json();
                 const cCode = (data.country || 'xx').toLowerCase();
                 document.getElementById('head-flag').innerHTML = cCode !== 'xx' ? \`<img src="https://flagcdn.com/24x18/\${cCode}.png" alt="\${cCode}" style="vertical-align: middle; margin-right: 8px; border-radius: 2px;">\` : '🏳️ ';
                 document.getElementById('val-uptime').innerText = data.uptime || 'N/A'; document.getElementById('val-arch').innerText = data.arch || 'N/A'; document.getElementById('val-os').innerText = data.os || 'N/A'; document.getElementById('val-virt').innerText = data.virt || 'N/A'; document.getElementById('val-cpuinfo').innerText = data.cpu_info || 'N/A'; document.getElementById('val-load').innerText = data.load_avg || '0.00'; document.getElementById('val-boot').innerText = data.boot_time || 'N/A'; 
@@ -3018,6 +3049,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                     updateMultiChartSync(charts.ping, [hist.ping_ct, hist.ping_cu, hist.ping_cm, hist.ping_bd], [parseInt(data.ping_ct) || 0, parseInt(data.ping_cu) || 0, parseInt(data.ping_cm) || 0, parseInt(data.ping_bd) || 0]);
                 }
               } catch (e) {}
+              finally { detailFetchInFlight = false; }
             }
             setInterval(() => { if (!document.hidden) fetchData(); }, DETAIL_REFRESH_MS);
             document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchData(); });
@@ -3032,7 +3064,14 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
       // ----------------------------------------
       // 大盘聚合首页 (包含卡片、表格、地图功能)
       // ----------------------------------------
-      let { results } = await env.DB.prepare('SELECT * FROM servers').all();
+      const dashboardColumns = `
+        id, name, cpu, ram, disk, uptime, last_updated, ram_total, net_rx, net_tx,
+        net_in_speed, net_out_speed, os, cpu_info, arch, ram_used, disk_total, disk_used,
+        processes, tcp_conn, udp_conn, country, ip_v4, ip_v6, server_group, price,
+        expire_date, bandwidth, traffic_limit, ping_ct, ping_cu, ping_cm, ping_bd,
+        monthly_rx, monthly_tx, is_hidden, virt
+      `;
+      let { results } = await env.DB.prepare(`SELECT ${dashboardColumns} FROM servers`).all();
       results = results.filter(s => s.is_hidden !== 'true');
 
       const now = Date.now();
@@ -3304,14 +3343,58 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
         }
       }
 
+      const mapDataJson = JSON.stringify(countryStats);
+      if (isAjax) {
+        const partialHtml = `<!DOCTYPE html><html><body>
+          <script id="map-data" type="application/json">${mapDataJson}</script>
+          <div id="ajax-filters">${filterTagsHtml}</div>
+          <div id="ajax-stats">
+            <div class="g-item">
+              <div class="g-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                服务器总数 ${rankHtmlServer}
+              </div>
+              <div class="g-val">${results.length}<span style="font-size:13px;color:var(--gray-400);font-weight:500;margin-left:4px;">台</span></div>
+              <div class="g-sub"><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-success);box-shadow:0 0 0 2px rgba(16,185,129,0.2);"></span><span style="color:var(--color-success);font-weight:700;">${globalOnline}</span> 在线</span> <span style="margin:0 6px;color:var(--gray-300);">·</span> <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-danger);"></span><span style="color:var(--color-danger);font-weight:700;">${globalOffline}</span> 离线</span></div>
+            </div>
+            ${sys.show_asset === 'true' ? `<div class="g-item">
+              <div class="g-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                数字资产 ${rankHtmlAsset}
+              </div>
+              <div class="g-val">${totalAsset.toFixed(0)}<span style="font-size:13px;color:var(--gray-400);font-weight:500;margin-left:4px;">${sys.asset_currency || '元'}</span></div>
+              <div class="g-sub">剩余价值 <span style="color:var(--color-purple);font-weight:700;">${remAsset.toFixed(2)}</span> ${sys.asset_currency || '元'}</div>
+            </div>` : ''}
+            <div class="g-item">
+              <div class="g-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"></path></svg>
+                总计流量 ${sys.auto_reset_traffic === 'true' ? '<span style="font-size:9px;color:var(--color-warning);background:rgba(245,158,11,0.12);padding:2px 6px;border-radius:var(--radius-xs);font-weight:700;letter-spacing:0;text-transform:none;">本月</span>' : ''}
+              </div>
+              <div class="g-val">${formatBytes(globalNetRx + globalNetTx)}</div>
+              <div class="g-sub"><span style="color:var(--color-success);font-weight:600;">↓ ${formatBytes(globalNetRx)}</span> <span style="margin:0 6px;color:var(--gray-300);">·</span> <span style="color:var(--color-primary);font-weight:600;">↑ ${formatBytes(globalNetTx)}</span></div>
+            </div>
+            <div class="g-item">
+              <div class="g-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                实时网速
+              </div>
+              <div class="g-val" style="font-size:18px;"><span style="color:var(--color-success);">↓ ${formatBytes(globalSpeedIn)}</span><span style="font-size:11px;color:var(--gray-400);">/s</span></div>
+              <div class="g-sub"><span style="color:var(--color-primary);font-weight:600;">↑ ${formatBytes(globalSpeedOut)}/s</span> 上行</div>
+            </div>
+          </div>
+          <div id="ajax-cards">${cardContentHtml}</div>
+          <table><tbody id="ajax-table">${tableBodyHtml || '<tr><td colspan="11" style="text-align:center;">暂无数据</td></tr>'}</tbody></table>
+        </body></html>`;
+        return new Response(partialHtml, { headers: { 'Content-Type': 'text/html;charset=UTF-8', 'Cache-Control': 'no-store' } });
+      }
+
       const html = `<!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${sys.site_title}</title>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-        <script id="map-data" type="application/json">${JSON.stringify(countryStats)}</script>
+        <script id="map-data" type="application/json">${mapDataJson}</script>
         ${sys.custom_head || ''}
         <style>
           body {
@@ -3806,8 +3889,6 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           ${getFooterHtml(sys)}
         </div>
 
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-        
         <script>
           let mapInitialized = false;
           window.currentFilter = 'all';
@@ -3843,6 +3924,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           }
 
           function switchView(viewName) {
+            if (!['card', 'table', 'map'].includes(viewName)) viewName = 'card';
             document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + viewName).classList.add('active');
             
@@ -3853,9 +3935,9 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
 
             if (viewName === 'map') {
               if (!mapInitialized) {
-                initMap();
                 mapInitialized = true;
-              } else {
+                initMap();
+              } else if (window.myMap) {
                 window.myMap.invalidateSize(); 
               }
             }
@@ -3903,6 +3985,45 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           let geoJsonLayer;
           let worldGeoJson = null;
           let currentMapDataStr = "";
+          let leafletAssetsPromise = null;
+
+          function loadScript(src) {
+            return new Promise((resolve, reject) => {
+              const existing = document.querySelector('script[src="' + src + '"]');
+              if (existing) return existing.dataset.loaded === 'true' ? resolve() : existing.addEventListener('load', resolve, { once: true });
+              const script = document.createElement('script');
+              script.src = src;
+              script.crossOrigin = '';
+              script.onload = () => { script.dataset.loaded = 'true'; resolve(); };
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+
+          function loadStylesheet(href) {
+            return new Promise((resolve, reject) => {
+              const existing = document.querySelector('link[href="' + href + '"]');
+              if (existing) return resolve();
+              const link = document.createElement('link');
+              link.rel = 'stylesheet';
+              link.href = href;
+              link.crossOrigin = '';
+              link.onload = resolve;
+              link.onerror = reject;
+              document.head.appendChild(link);
+            });
+          }
+
+          async function ensureLeaflet() {
+            if (window.L) return;
+            if (!leafletAssetsPromise) {
+              leafletAssetsPromise = Promise.all([
+                loadStylesheet('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
+                loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
+              ]);
+            }
+            await leafletAssetsPromise;
+          }
 
           const countryCoords = {
             'US': [37.09, -95.71], 'CN': [35.86, 104.19], 'JP': [36.20, 138.25], 'HK': [22.31, 114.16],
@@ -3930,18 +4051,25 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           }
 
           async function initMap() {
-            window.myMap = L.map('map-container', {
-                zoomControl: true,
-                attributionControl: false,
-                minZoom: 1
-            }).setView([30, 10], 2);
-
             try {
+                await ensureLeaflet();
+                if (window.myMap) {
+                    window.myMap.invalidateSize();
+                    return;
+                }
+
+                window.myMap = L.map('map-container', {
+                    zoomControl: true,
+                    attributionControl: false,
+                    minZoom: 1
+                }).setView([30, 10], 2);
+
                 const res = await fetch('https://cdn.jsdelivr.net/gh/johan/world.geo.json@master/countries.geo.json');
                 worldGeoJson = await res.json();
                 drawMarkers();
             } catch (e) {
                 console.error("Map load failed", e);
+                mapInitialized = false;
             }
           }
 
@@ -3980,7 +4108,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
                     const isActive = activeIso3[feature.id];
                     if (isActive && iso2Code) {
                         layer.on('click', function() {
-                            switchView('cards');
+                            switchView('card');
                             setFilter(iso2Code.toLowerCase());
                         });
                         layer.on('mouseover', function(e) {
@@ -4016,7 +4144,10 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           });
 
           const HOME_REFRESH_MS = ${homeRefreshMs};
+          let dashboardRefreshInFlight = false;
           async function refreshDashboard() {
+            if (dashboardRefreshInFlight) return;
+            dashboardRefreshInFlight = true;
             try {
               const currentUrl = new URL(location.href);
               currentUrl.searchParams.set('ajax', '1');
@@ -4024,13 +4155,19 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
               const htmlText = await res.text();
               const parser = new DOMParser();
               const newDoc = parser.parseFromString(htmlText, 'text/html');
+              const nextStats = newDoc.getElementById('ajax-stats');
+              const nextCards = newDoc.getElementById('ajax-cards');
+              const nextTable = newDoc.getElementById('ajax-table');
+              const nextFilters = newDoc.getElementById('ajax-filters');
+              const nextMapData = newDoc.getElementById('map-data');
+              if (!nextStats || !nextCards || !nextTable || !nextFilters || !nextMapData) return;
               
-              document.getElementById('ajax-stats').innerHTML = newDoc.getElementById('ajax-stats').innerHTML;
-              document.getElementById('ajax-cards').innerHTML = newDoc.getElementById('ajax-cards').innerHTML;
-              document.getElementById('ajax-table').innerHTML = newDoc.getElementById('ajax-table').innerHTML;
-              document.getElementById('ajax-filters').innerHTML = newDoc.getElementById('ajax-filters').innerHTML;
+              document.getElementById('ajax-stats').innerHTML = nextStats.innerHTML;
+              document.getElementById('ajax-cards').innerHTML = nextCards.innerHTML;
+              document.getElementById('ajax-table').innerHTML = nextTable.innerHTML;
+              document.getElementById('ajax-filters').innerHTML = nextFilters.innerHTML;
               
-              document.getElementById('map-data').textContent = newDoc.getElementById('map-data').textContent;
+              document.getElementById('map-data').textContent = nextMapData.textContent;
               
               // DOM 刷新后重新填充已获取的排名
               if (currentServerRank) {
@@ -4046,6 +4183,8 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
               applyFilter(); 
             } catch (e) {
               console.log('Ajax Refresh Failed', e);
+            } finally {
+              dashboardRefreshInFlight = false;
             }
           }
           setInterval(() => { if (!document.hidden) refreshDashboard(); }, HOME_REFRESH_MS);
