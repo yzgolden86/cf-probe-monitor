@@ -552,7 +552,7 @@ export default {
       .theme3 .custom-table, .theme3 .filter-tag { background: #fff; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0px #000; }
       .theme3 .header { background: #fff; border: 3px solid #000; border-radius: 0; box-shadow: 6px 6px 0px #000; }
 
-      body.theme4 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-attachment: fixed; color: #fff; }
+      body.theme4 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-attachment: scroll; color: #fff; }
       .theme4 .vps-card, .theme4 .header-card, .theme4 .chart-card { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); color: #fff; }
       .theme4 .g-item { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-color: rgba(255, 255, 255, 0.25); }
       .theme4 .vps-card:hover { background: rgba(255, 255, 255, 0.22); border-color: rgba(255, 255, 255, 0.5); }
@@ -613,8 +613,8 @@ export default {
       ${sys.theme === 'theme6' ? (sys.custom_css || '') : ''}
 
       ${sys.custom_bg ? `
-        body { background: url('${sys.custom_bg}') no-repeat center center fixed !important; background-size: cover !important; position: relative; }
-        body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.80) 100%); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); pointer-events: none; z-index: 0; }
+        body { background-image: url('${sys.custom_bg}') !important; background-repeat: no-repeat !important; background-position: center center !important; background-attachment: scroll !important; background-size: cover !important; position: relative; }
+        body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.82) 100%); backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px); pointer-events: none; z-index: 0; }
         .container { position: relative; z-index: 1; }
         .vps-card, .header-card, .chart-card, .custom-table, .view-controls { background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.98) !important; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15) !important; color: var(--gray-900) !important; }
         .g-item, .filter-tag { background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border: 1px solid rgba(255, 255, 255, 0.98) !important; }
@@ -712,6 +712,7 @@ export default {
 
       .custom-table {
         width: 100%;
+        min-width: 1180px;
         border-collapse: separate;
         border-spacing: 0;
         text-align: left;
@@ -742,10 +743,10 @@ export default {
         padding: 14px 12px;
         border-bottom: 1px solid var(--gray-100);
         vertical-align: middle;
-        transition: all 0.2s var(--ease-out);
+        transition: color 0.16s var(--ease-out), background-color 0.16s var(--ease-out);
       }
       .custom-table tbody tr {
-        transition: all 0.3s var(--ease-out);
+        transition: background-color 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out);
         position: relative;
       }
       .custom-table tbody td:first-child {
@@ -764,7 +765,6 @@ export default {
       }
       .custom-table tbody tr:hover {
         background: linear-gradient(90deg, rgba(59, 130, 246, 0.04), transparent);
-        transform: scale(1.002);
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       }
       .custom-table tbody tr:hover td:first-child::before {
@@ -775,7 +775,17 @@ export default {
       }
       .custom-table tr:last-child td { border-bottom: none; }
       .os-text { color: var(--gray-500); font-size: 12px; font-family: var(--font-mono); }
-      .table-responsive { width: 100%; overflow-x: auto; border-radius: var(--radius-lg); }
+      .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-radius: var(--radius-lg);
+        padding: 0 10px 8px 0;
+        margin-right: -10px;
+        scrollbar-gutter: stable;
+        -webkit-overflow-scrolling: touch;
+      }
 
       .filter-bar {
         display: flex;
@@ -839,7 +849,12 @@ export default {
       #map-container { width: 100%; height: 500px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--gray-200); background-color: #b1c2d4; background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 20px 20px; z-index: 1; }
       body.theme2 #map-container, body.theme5 #map-container { background-color: #0d1117; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); border-color: #30363d; }
       .custom-map-badge div { background-color: var(--color-success); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 8px rgba(5,150,105,0.4); }
-      .view-panel { display: none; } .view-panel.active { display: block; animation: slideUp 0.3s var(--ease-out); }
+      @view-transition { navigation: auto; }
+      ::view-transition-old(root),
+      ::view-transition-new(root) { animation-duration: 0.18s; animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1); }
+      body.route-leaving .container { opacity: 0.94; transform: translateY(2px); transition: opacity 0.12s ease, transform 0.12s ease; }
+      .view-panel { display: none; }
+      .view-panel.active { display: block; animation: fadeIn 0.18s var(--ease-out); }
       
       .stat-group {
         display: flex;
@@ -2701,7 +2716,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>${server.name} - ${sys.site_title}</title>
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
           ${sys.custom_head || ''}
           <style>
             body {
@@ -2710,7 +2725,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
               background-image:
                 radial-gradient(ellipse 800px 600px at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
                 radial-gradient(ellipse 600px 400px at 80% 0%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
-              background-attachment: fixed;
+              background-attachment: scroll;
               color: var(--gray-800);
               margin: 0;
               padding: 28px 24px;
@@ -2900,7 +2915,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
         </head>
         <body class="${sys.theme || 'theme1'}">
           <div class="container">
-            <a href="/" class="back-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> 返回大盘</a>
+            <a href="/" class="back-btn" onclick="if (document.referrer && new URL(document.referrer).origin === location.origin) { event.preventDefault(); document.body.classList.add('route-leaving'); history.back(); }"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> 返回大盘</a>
             <div class="header-card">
               <div class="title-row">
                 <h2><span id="head-flag"></span> ${server.name}</h2>
@@ -2932,7 +2947,9 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             </div>
             ${getFooterHtml(sys)}
           </div>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
           <script>
+            window.addEventListener('pageshow', () => document.body.classList.remove('route-leaving'));
             const serverId = "${viewId}";
             const formatBytes = (bytes) => { const b = parseInt(bytes); if (isNaN(b) || b === 0) return '0 B'; const k = 1024; const sizes = ['B', 'KB', 'MB', 'GB', 'TB']; const i = Math.floor(Math.log(b) / Math.log(k)); return parseFloat((b / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; };
             
@@ -3309,7 +3326,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
             const diskColor = disk > 80 ? 'linear-gradient(90deg,#ef4444,#dc2626)' : disk > 60 ? 'linear-gradient(90deg,#f59e0b,#d97706)' : 'linear-gradient(90deg,#8b5cf6,#7c3aed)';
 
             tableBodyHtml += `
-              <tr onclick="window.location.href='/?id=${server.id}'" style="cursor:pointer;" data-country="${cCode}">
+              <tr onclick="window.location.href='/?id=${server.id}'" style="cursor:pointer;" data-country="${cCode}" data-href="/?id=${server.id}">
                 <td style="text-align:center;"><div class="status-dot" style="background:${statusColor}; display:inline-block; margin:0; box-shadow: 0 0 0 3px ${isOnline ? 'rgba(16,185,129,0.18)' : 'rgba(239,68,68,0.15)'};"></div></td>
                 <td><b style="color:var(--gray-900); font-weight:700;">${server.name}</b></td>
                 <td>${flagHtml}</td>
@@ -3394,6 +3411,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${sys.site_title}</title>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <script id="map-data" type="application/json">${mapDataJson}</script>
         ${sys.custom_head || ''}
         <style>
@@ -3404,7 +3422,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
               radial-gradient(ellipse 800px 600px at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
               radial-gradient(ellipse 600px 400px at 80% 0%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
               radial-gradient(ellipse 400px 300px at 50% 100%, rgba(236, 72, 153, 0.04) 0%, transparent 50%);
-            background-attachment: fixed;
+            background-attachment: scroll;
             color: var(--gray-800);
             margin: 0;
             padding: 28px 24px;
@@ -3898,6 +3916,42 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           // ==========================================
           let currentServerRank = '';
           let currentAssetRank = '';
+          const prefetchedDetails = new Set();
+
+          function getDetailHrefFromTarget(target) {
+            if (!target || !target.closest) return '';
+            const detailTarget = target.closest('a.vps-card, tr[data-href]');
+            if (!detailTarget) return '';
+            return detailTarget.getAttribute('href') || detailTarget.dataset.href || '';
+          }
+
+          function prefetchDetail(href) {
+            if (!href || prefetchedDetails.has(href)) return;
+            prefetchedDetails.add(href);
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.as = 'document';
+            link.href = href;
+            document.head.appendChild(link);
+          }
+
+          document.addEventListener('pointerover', (event) => {
+            prefetchDetail(getDetailHrefFromTarget(event.target));
+          }, { passive: true });
+
+          document.addEventListener('pointerdown', (event) => {
+            const href = getDetailHrefFromTarget(event.target);
+            if (!href) return;
+            prefetchDetail(href);
+          }, { passive: true });
+
+          document.addEventListener('click', (event) => {
+            const href = getDetailHrefFromTarget(event.target);
+            if (!href || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+            document.body.classList.add('route-leaving');
+          }, true);
+
+          window.addEventListener('pageshow', () => document.body.classList.remove('route-leaving'));
 
           if ('${sys.enable_ranking}' === 'true' && '${sys.ranking_api}') {
               const fetchRank = async () => {
@@ -4146,7 +4200,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
           const HOME_REFRESH_MS = ${homeRefreshMs};
           let dashboardRefreshInFlight = false;
           async function refreshDashboard() {
-            if (dashboardRefreshInFlight) return;
+            if (dashboardRefreshInFlight || document.body.classList.contains('route-leaving')) return;
             dashboardRefreshInFlight = true;
             try {
               const currentUrl = new URL(location.href);
@@ -4161,6 +4215,7 @@ echo "✅ Linux 探针安装成功！热重载功能已启用。"
               const nextFilters = newDoc.getElementById('ajax-filters');
               const nextMapData = newDoc.getElementById('map-data');
               if (!nextStats || !nextCards || !nextTable || !nextFilters || !nextMapData) return;
+              await new Promise(resolve => requestAnimationFrame(resolve));
               
               document.getElementById('ajax-stats').innerHTML = nextStats.innerHTML;
               document.getElementById('ajax-cards').innerHTML = nextCards.innerHTML;
